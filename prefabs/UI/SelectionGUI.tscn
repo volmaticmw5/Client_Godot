@@ -1,0 +1,49 @@
+[gd_scene load_steps=2 format=2]
+
+[ext_resource path="res://src/GUI/Login/CharSelection.cs" type="Script" id=1]
+
+[node name="SelectionGUI" type="Control"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+script = ExtResource( 1 )
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="Background" type="ColorRect" parent="."]
+anchor_right = 1.0
+anchor_bottom = 1.0
+margin_right = 1.0
+margin_bottom = 3.0
+color = Color( 0.0627451, 0.0627451, 0.0627451, 1 )
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="Selection" type="Control" parent="."]
+margin_right = 1026.0
+margin_bottom = 601.0
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="CharContainer" type="GridContainer" parent="Selection"]
+margin_left = 43.0
+margin_top = 98.0
+margin_right = 243.0
+margin_bottom = 498.0
+rect_clip_content = true
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="PlayBtn" type="Button" parent="Selection"]
+margin_left = 430.142
+margin_top = 510.661
+margin_right = 582.142
+margin_bottom = 551.661
+disabled = true
+text = "Enter"
+__meta__ = {
+"_edit_use_anchors_": false
+}

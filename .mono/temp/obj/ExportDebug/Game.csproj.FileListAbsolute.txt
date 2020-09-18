@@ -1,0 +1,5 @@
+C:\Users\Workstation\Documents\Game\.mono\temp\bin\ExportDebug\Game.dll
+C:\Users\Workstation\Documents\Game\.mono\temp\bin\ExportDebug\Game.pdb
+C:\Users\Workstation\Documents\Game\.mono\temp\obj\ExportDebug\Game.csprojAssemblyReference.cache
+C:\Users\Workstation\Documents\Game\.mono\temp\obj\ExportDebug\Game.dll
+C:\Users\Workstation\Documents\Game\.mono\temp\obj\ExportDebug\Game.pdb

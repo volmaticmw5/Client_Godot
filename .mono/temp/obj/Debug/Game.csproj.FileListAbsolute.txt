@@ -1,0 +1,6 @@
+C:\Users\Workstation\Documents\Game\.mono\temp\obj\Debug\Game.csprojAssemblyReference.cache
+C:\Users\Workstation\Documents\Game\.mono\temp\bin\Debug\Game.dll
+C:\Users\Workstation\Documents\Game\.mono\temp\bin\Debug\Game.pdb
+C:\Users\Workstation\Documents\Game\.mono\temp\obj\Debug\Game.dll
+C:\Users\Workstation\Documents\Game\.mono\temp\obj\Debug\Game.pdb
+C:\Users\Workstation\Documents\Game\.mono\temp\obj\Debug\Game.csproj.CoreCompileInputs.cache
