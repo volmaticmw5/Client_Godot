@@ -8,14 +8,15 @@ public enum ServerPackets
 	connectSucess,
 	requestAuth,
 	authResult,
-	charSelection
+	charSelection,
+	goToServerAt
 }
 
 public enum ClientPackets
 {
 	pong,
 	authenticate,
-	enterMap
+	enterMap,
 }
 
 public class Packet : IDisposable

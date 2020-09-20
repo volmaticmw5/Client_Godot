@@ -79,4 +79,24 @@ class Authentication
 
 		GD.Print(data);
 	}
+
+	internal static void GoToGameServer(Packet packet)
+	{
+		int cid = packet.ReadInt();
+		int session = packet.ReadInt();
+		string addr = packet.ReadString();
+		int port = packet.ReadInt();
+
+		if(Client.instance.getSessionId() == session)
+		{
+			// Disconnect from auth server
+			// TODO :: Dont go back to login screen, we are WAITING for the game server to request our session id!
+			Client.instance.Disconnect();
+			Client.instance.Connect(addr, port);
+		}
+		else
+		{
+			Client.instance.Disconnect(); // Do go back to login, session missmatch
+		}
+	}
 }

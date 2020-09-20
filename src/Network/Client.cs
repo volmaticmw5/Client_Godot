@@ -64,8 +64,19 @@ public class Client : Node
 			{(int)ServerPackets.requestAuth, Authentication.RequestAuth },
 			{(int)ServerPackets.authResult, Authentication.AuthFailed },
 			{(int)ServerPackets.charSelection, Authentication.CharSelectionCB },
+			{(int)ServerPackets.goToServerAt, Authentication.GoToGameServer },
 		};
 		GD.Print("Initialized client packets.");
+	}
+
+	/// <summary>
+	/// Initializes the connection to the game server
+	/// </summary>
+	public void Connect(string addr, int port)
+	{
+		GD.Print($"Connecting to game server on {addr} on port {port}...");
+		tcp = new TCP(addr, port);
+		tcp.Connect();
 	}
 
 	/// <summary>
@@ -77,15 +88,6 @@ public class Client : Node
 		tcp = new TCP(AuthenticationServerAddr, AuthenticationPort);
 		tcp.Connect();
 	}
-
-	/*
-	public void ConnectToServer()
-	{
-		GD.Print($"Connecting to authentication server on {AuthenticationServerAddr} on port {AuthenticationPort}...");
-		tcp = new TCP();
-		tcp.Connect();
-	}
-	*/
 
 	public void Disconnect()
 	{

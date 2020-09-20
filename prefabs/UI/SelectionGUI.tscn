@@ -47,3 +47,4 @@ text = "Enter"
 __meta__ = {
 "_edit_use_anchors_": false
 }
+[connection signal="button_down" from="Selection/PlayBtn" to="." method="Play"]
