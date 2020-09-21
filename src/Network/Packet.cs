@@ -9,14 +9,19 @@ public enum ServerPackets
 	requestAuth,
 	authResult,
 	charSelection,
-	goToServerAt
+	goToServerAt,
+	identifyoself,
+	warpTo,
+	alreadyConnected
 }
 
+/// <summary>Sent from client to server.</summary>
 public enum ClientPackets
 {
 	pong,
 	authenticate,
 	enterMap,
+	itsme,
 }
 
 public class Packet : IDisposable

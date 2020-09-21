@@ -29,6 +29,7 @@ public class Client : Node
 
 	internal void setSessionId(int _session_id)
 	{
+		GD.Print("set session id to " + _session_id);
 		this.session_id = _session_id;
 	}
 
@@ -52,7 +53,7 @@ public class Client : Node
 	{
 		if (what == MainLoop.NotificationWmQuitRequest)
 		{
-			Disconnect();
+			Disconnect(5);
 		}
 	}
 
@@ -63,8 +64,11 @@ public class Client : Node
 			{(int)ServerPackets.connectSucess, Authentication.Pong },
 			{(int)ServerPackets.requestAuth, Authentication.RequestAuth },
 			{(int)ServerPackets.authResult, Authentication.AuthFailed },
+			{(int)ServerPackets.alreadyConnected, Authentication.AlreadyConnected },
 			{(int)ServerPackets.charSelection, Authentication.CharSelectionCB },
 			{(int)ServerPackets.goToServerAt, Authentication.GoToGameServer },
+			{(int)ServerPackets.identifyoself, Authentication.IdentifyMyself },
+			{(int)ServerPackets.warpTo, Authentication.WarpTo },
 		};
 		GD.Print("Initialized client packets.");
 	}
@@ -74,6 +78,9 @@ public class Client : Node
 	/// </summary>
 	public void Connect(string addr, int port)
 	{
+		if (tcp.socket.Connected)
+			Disconnect(6);
+
 		GD.Print($"Connecting to game server on {addr} on port {port}...");
 		tcp = new TCP(addr, port);
 		tcp.Connect();
@@ -89,14 +96,13 @@ public class Client : Node
 		tcp.Connect();
 	}
 
-	public void Disconnect()
+	public void Disconnect(int code = -1)
 	{
 		if (tcp != null)
 		{
 			tcp.socket.Close();
 			tcp = null;
-			session_id = -1;
-			GD.Print("Disconnected from the authentication server.");
+			GD.Print($"Disconnected from the server ({code}).");
 		}
 	}
 
@@ -174,9 +180,9 @@ public class Client : Node
 
 					stream.BeginRead(receivedBuffer, 0, buffer_size, ReceiveCallback, null);
 				}
-				catch (SocketException ex)
+				catch (Exception ex)
 				{
-					GD.Print($"Error while connecting to the server: {ex}");
+					GD.Print($"Error while connecting to the server: {ex.Message}");
 					return;
 				}
 			}
@@ -190,7 +196,7 @@ public class Client : Node
 
 				if (byteLength <= 0)
 				{
-					Disconnect();
+					Disconnect(44);
 					return;
 				}
 
@@ -202,8 +208,8 @@ public class Client : Node
 			}
 			catch (Exception ex)
 			{
-				Console.WriteLine($"Error receiving TCP data: {ex}");
-				Disconnect();
+				//GD.Print($"Error receiving TCP data: {ex.Message}");
+				Disconnect(55);
 			}
 		}
 
@@ -260,9 +266,9 @@ public class Client : Node
 			}
 		}
 
-		private void Disconnect()
+		public void Disconnect(int code = -1)
 		{
-			instance.Disconnect();
+			instance.Disconnect(code);
 			stream = null;
 			receivedBuffer = null;
 			receivedData = null;
