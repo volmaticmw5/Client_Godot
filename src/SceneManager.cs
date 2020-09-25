@@ -10,6 +10,11 @@ public enum ScenePrefabs
 	SelectionGUI,
 }
 
+public enum MapIndexes
+{
+	map_tests = 1,
+}
+
 public class SceneManager : Node
 {
 	private static SceneManager instance;
@@ -18,6 +23,7 @@ public class SceneManager : Node
 		{ ScenePrefabs.LoginGUI, new [] { "res://prefabs/UI/LoginGUI.tscn", "Game/LoginGUI" } },
 		{ ScenePrefabs.SelectionGUI, new [] {"res://prefabs/UI/SelectionGUI.tscn", "Game/SelectionGUI"} },
 	};
+	private static List<string> mapScenesPaths = new List<string>();
 
 	public override void _Ready()
 	{
@@ -89,5 +95,57 @@ public class SceneManager : Node
 					try { tempInstance.CallDeferred("free"); } catch { }
 			}
 		}
+	}
+
+	public static void ClearAllMapScenes()
+	{
+		foreach (string ms in mapScenesPaths)
+		{
+			var mInstance = instance.GetTree().Root.GetNodeOrNull(ms);
+			if(mInstance != null)
+			{
+				if (mInstance.IsInsideTree())
+					try { mInstance.CallDeferred("queue_free"); } catch { }
+				else
+					try { mInstance.CallDeferred("free"); } catch { }
+			}
+		}
+	}
+
+	public static void LoadMapScene(int mapIndex)
+	{
+		string enum_to_str = ((MapIndexes)mapIndex).ToString();
+		PackedScene packed = (PackedScene)ResourceLoader.Load($"res://prefabs/maps/{enum_to_str}.tscn");
+		instance.GetTree().Root.GetNodeOrNull("Game").CallDeferred("add_child", packed.Instance());
+		mapScenesPaths.Add($"Game/{enum_to_str}");
+	}
+
+	public static void ToLogin()
+	{
+		GD.Print("Connection lost, back to login...");
+		ClearScenes();
+		ClearAllMapScenes();
+		TryAddSceneNoDupe(ScenePrefabs.LoginGUI, "Game");
+	}
+
+	public static void WarpTo(Packet packet)
+	{
+		int cid = packet.ReadInt();
+		int map = packet.ReadInt();
+		Vector3 pos = packet.ReadVector3();
+		string name = packet.ReadString();
+		int sex = packet.ReadInt();
+		int race = packet.ReadInt();
+
+		SceneManager.ClearScenes();
+		SceneManager.ClearAllMapScenes();
+		SceneManager.LoadMapScene(map);
+
+		PackedScene playerPrefab = (PackedScene)ResourceLoader.Load($"res://prefabs/Player.tscn");
+		Player playerInstance = (Player)playerPrefab.Instance();
+		instance.GetTree().Root.GetNodeOrNull("Game").CallDeferred("add_child", playerInstance);
+		playerInstance.SpawnAt(name, pos, sex, race);
+
+		GD.Print($"go to map #{map} at pos {pos.x},{pos.y},{pos.z} with char name of {name}");
 	}
 }

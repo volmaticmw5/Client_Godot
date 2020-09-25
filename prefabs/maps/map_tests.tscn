@@ -22,3 +22,6 @@ ground/albedo_bump_2 = null
 ground/normal_roughness_2 = null
 ground/albedo_bump_3 = null
 ground/normal_roughness_3 = null
+
+[node name="Spatial" type="Spatial" parent="."]
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 83.1922, 0, 77.1864 )

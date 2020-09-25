@@ -1,0 +1,23 @@
+[gd_scene load_steps=3 format=2]
+
+[ext_resource path="res://src/Player.cs" type="Script" id=1]
+
+[sub_resource type="CapsuleShape" id=1]
+
+[node name="Player" type="KinematicBody"]
+script = ExtResource( 1 )
+CameraBasePath = NodePath("CameraBase")
+CameraXmax = 60.0
+
+[node name="FloorRaycast" type="RayCast" parent="."]
+
+[node name="CollisionShape" type="CollisionShape" parent="."]
+transform = Transform( 1, 0, 0, 0, -1.62921e-07, -1, 0, 1, -1.62921e-07, 0, 1.5, 0 )
+shape = SubResource( 1 )
+
+[node name="CameraBase" type="Spatial" parent="."]
+
+[node name="CameraRot" type="Spatial" parent="CameraBase"]
+
+[node name="Camera" type="Camera" parent="CameraBase/CameraRot"]
+transform = Transform( 1, 0, 0, 0, 0.960328, 0.278874, 0, -0.278874, 0.960328, 0, 4.35121, 7.96762 )

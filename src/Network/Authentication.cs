@@ -108,6 +108,9 @@ class Authentication
 	internal static void IdentifyMyself(Packet packet)
 	{
 		int cid = packet.ReadInt();
+		string msg = packet.ReadString();
+		GD.Print(msg);
+
 		int sid = Client.instance.getSessionId();
 		using (Packet newPacket = new Packet((int)ClientPackets.itsme))
 		{
@@ -115,14 +118,5 @@ class Authentication
 			newPacket.Write(sid);
 			Client.SendTCPData(newPacket);
 		}
-	}
-
-	internal static void WarpTo(Packet packet)
-	{
-		int cid = packet.ReadInt();
-		int map = packet.ReadInt();
-		Vector3 pos = packet.ReadVector3();
-		string name = packet.ReadString();
-		GD.Print($"go to map #{map} at pos {pos.x},{pos.y},{pos.z} with char name of {name}");
 	}
 }

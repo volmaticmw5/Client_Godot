@@ -28,5 +28,9 @@
     <Compile Include="src\SceneManager.cs" />
     <Compile Include="src\GUI\Login\CharSelection.cs" />
 	<Compile Include="src\GUI\Login\CharSlot.cs" />
+	<Compile Include="src\Keybinds.cs" />
+	<Compile Include="src\Player.cs" />
+	<Compile Include="src\PlayerCamera.cs" />
+	<Compile Include="src\PlayerMesh.cs" />
   </ItemGroup>
 </Project>

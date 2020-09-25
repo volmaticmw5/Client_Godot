@@ -4,6 +4,7 @@ using System.Net;
 using System.Net.Sockets;
 using System;
 using Godot;
+using System.Threading.Tasks;
 
 public class Client : Node
 {
@@ -68,7 +69,7 @@ public class Client : Node
 			{(int)ServerPackets.charSelection, Authentication.CharSelectionCB },
 			{(int)ServerPackets.goToServerAt, Authentication.GoToGameServer },
 			{(int)ServerPackets.identifyoself, Authentication.IdentifyMyself },
-			{(int)ServerPackets.warpTo, Authentication.WarpTo },
+			{(int)ServerPackets.warpTo, SceneManager.WarpTo },
 		};
 		GD.Print("Initialized client packets.");
 	}
@@ -76,10 +77,16 @@ public class Client : Node
 	/// <summary>
 	/// Initializes the connection to the game server
 	/// </summary>
-	public void Connect(string addr, int port)
+	public async void Connect(string addr, int port)
 	{
 		if (tcp.socket.Connected)
 			Disconnect(6);
+
+		// It's extremely important (apparently) to wait after a disconnect to connect again
+		// If we don't wait a bit before connecting to another server, the client seems to disconnect right away, as if the disconnect method called above
+		// is not yet finished and disconnects both in the old and the "new" server we're connecting to.
+		// TODO :: figure out a nicer way of handling this, maybe some retries, etc..
+		await Task.Delay(1000);
 
 		GD.Print($"Connecting to game server on {addr} on port {port}...");
 		tcp = new TCP(addr, port);
@@ -112,18 +119,21 @@ public class Client : Node
 		if (Client.instance == null)
 		{
 			GD.Print("Failed to send data to the server, client instance is no longer available or the client is disconnected.");
+			SceneManager.ToLogin();
 			return;
 		}
 
 		if (Client.instance.tcp == null)
 		{
 			GD.Print("Failed to send data to the server, client instance is no longer available or the client is disconnected.");
+			SceneManager.ToLogin();
 			return;
 		}
 
 		if (Client.instance.tcp.socket.Connected == false)
 		{
 			GD.Print("Failed to send data to the server, client instance is no longer available or the client is disconnected.");
+			SceneManager.ToLogin();
 			return;
 		}
 
@@ -163,6 +173,7 @@ public class Client : Node
 			if (!succ)
 			{
 				GD.Print($"Error while connecting to the server.");
+				SceneManager.ToLogin();
 				return;
 			}
 			else
@@ -183,6 +194,7 @@ public class Client : Node
 				catch (Exception ex)
 				{
 					GD.Print($"Error while connecting to the server: {ex.Message}");
+					SceneManager.ToLogin();
 					return;
 				}
 			}
@@ -263,6 +275,7 @@ public class Client : Node
 			catch (Exception ex)
 			{
 				GD.PrintErr($"Error sending data to the server: {ex}");
+				SceneManager.ToLogin();
 			}
 		}
 
