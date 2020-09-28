@@ -31,6 +31,7 @@ public class Player : KinematicBody
 	[Export] public float CameraXmin = -40f;
 	[Export] public float CameraXmax = -30f;
 
+	private static Player instance;
 	private PlayerMesh mesh;
 	private Vector2 motion;
 	private Vector3 velocity = new Vector3();
@@ -46,6 +47,7 @@ public class Player : KinematicBody
 
 	public override void _Ready()
 	{
+		instance = this;
 		cameraBase = GetNode<Spatial>(CameraBasePath);
 		cameraRot = cameraBase.GetNode<Spatial>("CameraRot");
 		camera = cameraRot.GetNode<Spatial>("Camera");
@@ -157,5 +159,17 @@ public class Player : KinematicBody
 		current.origin.y = pos.y;
 		current.origin.z = pos.z;
 		Transform = current;
+	}
+
+	public static void SendMyPosition()
+	{
+		using (Packet packet = new Packet((int)ClientPackets.myPosition))
+		{
+			packet.Write(Client.instance.getCID());
+			packet.Write(Client.instance.getSessionId());
+			packet.Write(instance.Transform.origin);
+
+			Client.SendTCPData(packet);
+		}
 	}
 }

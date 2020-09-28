@@ -12,7 +12,8 @@ public enum ServerPackets
 	goToServerAt,
 	identifyoself,
 	warpTo,
-	alreadyConnected
+	alreadyConnected,
+	playersInMap
 }
 
 /// <summary>Sent from client to server.</summary>
@@ -22,6 +23,7 @@ public enum ClientPackets
 	authenticate,
 	enterMap,
 	itsme,
+	myPosition
 }
 
 public class Packet : IDisposable

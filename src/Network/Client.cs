@@ -70,6 +70,7 @@ public class Client : Node
 			{(int)ServerPackets.goToServerAt, Authentication.GoToGameServer },
 			{(int)ServerPackets.identifyoself, Authentication.IdentifyMyself },
 			{(int)ServerPackets.warpTo, SceneManager.WarpTo },
+			{(int)ServerPackets.playersInMap, Map.HandlePlayersInMap },
 		};
 		GD.Print("Initialized client packets.");
 	}

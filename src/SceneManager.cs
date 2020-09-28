@@ -18,6 +18,7 @@ public enum MapIndexes
 public class SceneManager : Node
 {
 	private static SceneManager instance;
+	private static Map currentMap;
 	private Dictionary<ScenePrefabs, string[]> Scenes = new Dictionary<ScenePrefabs, string[]>()
 	{
 		{ ScenePrefabs.LoginGUI, new [] { "res://prefabs/UI/LoginGUI.tscn", "Game/LoginGUI" } },
@@ -136,6 +137,8 @@ public class SceneManager : Node
 		string name = packet.ReadString();
 		int sex = packet.ReadInt();
 		int race = packet.ReadInt();
+
+		currentMap = new Map(map);
 
 		SceneManager.ClearScenes();
 		SceneManager.ClearAllMapScenes();
