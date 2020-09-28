@@ -34,5 +34,6 @@
 	<Compile Include="src\Player\Player.cs" />
 	<Compile Include="src\Player\PlayerCamera.cs" />
 	<Compile Include="src\Player\PlayerMesh.cs" />
+	<Compile Include="src\GUI\Debug\DebugTexts.cs" />
   </ItemGroup>
 </Project>

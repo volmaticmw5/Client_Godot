@@ -5,21 +5,21 @@ using System.Text;
 using System.Threading.Tasks;
 using Godot;
 
+public enum Races
+{
+	HUMAN = 1,
+	INFECTED = 2,
+	ORCS = 3
+}
+
+public enum Sexes
+{
+	MALE = 1,
+	FEMALE = 1
+}
+
 public class Player : KinematicBody
 {
-	public enum Races
-	{
-		HUMAN = 1,
-		INFECTED = 2,
-		ORCS = 3
-	}
-
-	public enum Sexes
-	{
-		MALE = 1,
-		FEMALE = 1
-	}
-
 	[Export] public NodePath CameraBasePath;
 	[Export] public Vector3 Gravity = new Vector3(0, -20f, 0);
 	[Export] public int MotionInterpolateSpeed = 10;
@@ -31,7 +31,8 @@ public class Player : KinematicBody
 	[Export] public float CameraXmin = -40f;
 	[Export] public float CameraXmax = -30f;
 
-	private static Player instance;
+	public static Player instance;
+	private bool spawned;
 	private PlayerMesh mesh;
 	private Vector2 motion;
 	private Vector3 velocity = new Vector3();
@@ -159,6 +160,19 @@ public class Player : KinematicBody
 		current.origin.y = pos.y;
 		current.origin.z = pos.z;
 		Transform = current;
+
+		spawned = true;
+	}
+
+	public static bool IsReady()
+	{
+		if (instance == null)
+			return false;
+
+		if (!instance.spawned)
+			return false;
+
+		return true;
 	}
 
 	public static void SendMyPosition()

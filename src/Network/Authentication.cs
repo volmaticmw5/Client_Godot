@@ -46,8 +46,8 @@ class Authentication
 			using (Packet newPacket = new Packet((int)ClientPackets.authenticate))
 			{
 				newPacket.Write(id);
-				newPacket.Write("teste"); //user
-				newPacket.Write("teste"); //password
+				newPacket.Write(LoginManager.CurrentUsername); //user
+				newPacket.Write(LoginManager.CurrentPassword); //password
 				Client.SendTCPData(newPacket);
 			}
 		}
@@ -82,8 +82,6 @@ class Authentication
 			SceneManager.TryAddSceneNoDupe(ScenePrefabs.SelectionGUI, "Game");
 			CharSelection.SetCharacters(data);
 		}
-
-		GD.Print(data);
 	}
 
 	internal static void GoToGameServer(Packet packet)
@@ -109,9 +107,11 @@ class Authentication
 	{
 		int cid = packet.ReadInt();
 		string msg = packet.ReadString();
+		int sid = Client.instance.getSessionId();
 		GD.Print(msg);
 
-		int sid = Client.instance.getSessionId();
+		Client.instance.setCID(cid);
+
 		using (Packet newPacket = new Packet((int)ClientPackets.itsme))
 		{
 			newPacket.Write(cid);

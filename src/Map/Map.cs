@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Godot;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -30,10 +31,12 @@ class Map
                     {
                         string[] pData = playerData.Split(';');
                         Int32.TryParse(pData[0], out int pid);
-                        string name = pData[1];
-                        float.TryParse(pData[2], out float x);
-                        float.TryParse(pData[3], out float y);
-                        float.TryParse(pData[4], out float z);
+                        Int32.TryParse(pData[1], out int race);
+                        Int32.TryParse(pData[2], out int sex);
+                        string name = pData[3];
+                        float.TryParse(pData[4], out float x);
+                        float.TryParse(pData[5], out float y);
+                        float.TryParse(pData[6], out float z);
 
                         bool exists = false;
                         for (int i = 0; i < visiblePlayers.Count; i++)
@@ -41,7 +44,7 @@ class Map
                             if(visiblePlayers[i].pid == pid)
                             {
                                 // Update its position, equipment, level, etc...
-                                visiblePlayers[i].position = new System.Numerics.Vector3(x, y, z);
+                                visiblePlayers[i].position = new Godot.Vector3(x, y, z);
 
                                 exists = true;
                                 break;
@@ -50,15 +53,30 @@ class Map
 
                         if (!exists)
                         {
-                            OtherPlayer nPlayer = new OtherPlayer(pid, name, new System.Numerics.Vector3(x, y, z));
-                            visiblePlayers.Add(nPlayer);
+                            PackedScene nOtherScene = (PackedScene)ResourceLoader.Load($"res://prefabs/OtherPlayer.tscn");
+                            OtherPlayer otherPlayer = nOtherScene.Instance() as OtherPlayer;
+                            otherPlayer.Init(pid, race, sex, name, new Godot.Vector3(x, y, z));
+                            SceneManager.GetInstance().GetTree().Root.GetNodeOrNull("Game").CallDeferred("add_child", otherPlayer);
+                            visiblePlayers.Add(otherPlayer);
                         }
                     }
                 }
             }
         }
 
+        // For debug only /////////
+        if(Player.instance != null)
+        {
+            DebugTexts.toDraw = $"({Player.instance.Transform.origin.x},{Player.instance.Transform.origin.y},{Player.instance.Transform.origin.z}) | '{Player.instance.name}'\n";
+            foreach (OtherPlayer player in visiblePlayers)
+            {
+                DebugTexts.toDraw += $"Player #{player.pid}, '{player.name}' ({player.position.x},{player.position.y},{player.position.z})\n";
+            }
+        }
+        /////////////////////////
+
         // Send the server OUR position
-        Player.SendMyPosition();
+        if(Player.IsReady())
+            Player.SendMyPosition();
     }
 }

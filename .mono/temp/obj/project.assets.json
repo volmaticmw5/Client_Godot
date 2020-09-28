@@ -8,19 +8,19 @@
     ".NETFramework,Version=v4.7.2": []
   },
   "packageFolders": {
-    "C:\\Users\\Portatil\\.nuget\\packages\\": {}
+    "C:\\Users\\Workstation\\.nuget\\packages\\": {}
   },
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "C:\\Users\\Portatil\\Desktop\\Game\\Client_Godot\\Game.csproj",
+      "projectUniqueName": "C:\\Users\\Workstation\\Documents\\Game\\Game.csproj",
       "projectName": "Game",
-      "projectPath": "C:\\Users\\Portatil\\Desktop\\Game\\Client_Godot\\Game.csproj",
-      "packagesPath": "C:\\Users\\Portatil\\.nuget\\packages\\",
-      "outputPath": "C:\\Users\\Portatil\\Desktop\\Game\\Client_Godot\\.mono\\temp\\obj\\",
+      "projectPath": "C:\\Users\\Workstation\\Documents\\Game\\Game.csproj",
+      "packagesPath": "C:\\Users\\Workstation\\.nuget\\packages\\",
+      "outputPath": "C:\\Users\\Workstation\\Documents\\Game\\.mono\\temp\\obj\\",
       "projectStyle": "PackageReference",
       "configFilePaths": [
-        "C:\\Users\\Portatil\\AppData\\Roaming\\NuGet\\NuGet.Config",
+        "C:\\Users\\Workstation\\AppData\\Roaming\\NuGet\\NuGet.Config",
         "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
       ],
       "originalTargetFrameworks": [

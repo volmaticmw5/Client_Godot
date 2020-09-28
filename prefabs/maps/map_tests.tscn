@@ -1,7 +1,9 @@
-[gd_scene load_steps=3 format=2]
+[gd_scene load_steps=5 format=2]
 
 [ext_resource path="res://addons/zylann.hterrain/hterrain.gd" type="Script" id=1]
 [ext_resource path="res://prefabs/maps/map_tests/data.hterrain" type="Resource" id=2]
+[ext_resource path="res://textures/UV_Grid_Lrg.jpg" type="Texture" id=3]
+[ext_resource path="res://prefabs/UI/DebugTexts.tscn" type="PackedScene" id=4]
 
 [node name="map_tests" type="Spatial"]
 
@@ -14,7 +16,7 @@ custom_shader = null
 shader_params/u_ground_uv_scale = 20
 shader_params/u_depth_blending = true
 shader_params/u_triplanar = false
-ground/albedo_bump_0 = null
+ground/albedo_bump_0 = ExtResource( 3 )
 ground/normal_roughness_0 = null
 ground/albedo_bump_1 = null
 ground/normal_roughness_1 = null
@@ -25,3 +27,5 @@ ground/normal_roughness_3 = null
 
 [node name="Spatial" type="Spatial" parent="."]
 transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 83.1922, 0, 77.1864 )
+
+[node name="DebugTexts" parent="." instance=ExtResource( 4 )]

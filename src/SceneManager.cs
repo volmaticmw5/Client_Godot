@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using Godot;
 
@@ -80,6 +81,11 @@ public class SceneManager : Node
 		return false;
 	}
 
+	public static SceneManager GetInstance()
+	{
+		return instance;
+	}
+
 	public static void ClearScenes()
 	{
 		foreach (KeyValuePair<ScenePrefabs, string[]> scene in instance.Scenes)
@@ -132,12 +138,14 @@ public class SceneManager : Node
 	public static void WarpTo(Packet packet)
 	{
 		int cid = packet.ReadInt();
+		int sid = packet.ReadInt();
 		int map = packet.ReadInt();
 		Vector3 pos = packet.ReadVector3();
 		string name = packet.ReadString();
 		int sex = packet.ReadInt();
 		int race = packet.ReadInt();
 
+		Client.instance.setSessionId(sid);
 		currentMap = new Map(map);
 
 		SceneManager.ClearScenes();
