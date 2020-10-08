@@ -2,6 +2,7 @@ using System;
 using System.Text;
 using System.Linq;
 using Godot;
+using System.Collections.Generic;
 
 class Authentication
 {
@@ -67,21 +68,19 @@ class Authentication
 
 	internal static void CharSelectionCB(Packet packet)
 	{
+		List<CharacterSelectionEntry> characters = new List<CharacterSelectionEntry>();
 		int id = packet.ReadInt();
 		int session_id = packet.ReadInt();
-		string data = packet.ReadString();
+		for (int i = 0; i < 8; i++)
+		{
+			CharacterSelectionEntry entry = packet.ReadCharacterSelectionEntry();
+			characters.Add(entry);
+		}
+
 		Client.instance.setSessionId(session_id);
-		if(data == "")
-		{
-			GD.Print("Failed to authenticate");
-			Client.instance.Disconnect(3);
-		}
-		else
-		{
-			SceneManager.ClearScenes();
-			SceneManager.TryAddSceneNoDupe(ScenePrefabs.SelectionGUI, "Game");
-			CharSelection.SetCharacters(data);
-		}
+		SceneManager.ClearScenes();
+		SceneManager.TryAddSceneNoDupe(ScenePrefabs.SelectionGUI, "Game");
+		CharSelection.SetCharacters(characters.ToArray());
 	}
 
 	internal static void GoToGameServer(Packet packet)

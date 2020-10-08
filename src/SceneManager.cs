@@ -137,26 +137,19 @@ public class SceneManager : Node
 
 	public static void WarpTo(Packet packet)
 	{
-		int cid = packet.ReadInt();
-		int sid = packet.ReadInt();
-		int map = packet.ReadInt();
-		Vector3 pos = packet.ReadVector3();
-		string name = packet.ReadString();
-		int sex = packet.ReadInt();
-		int race = packet.ReadInt();
-
-		Client.instance.setSessionId(sid);
-		currentMap = new Map(map);
+		PlayerData pData = packet.ReadPlayerData();
+		Client.instance.setSessionId(pData.sid);
+		currentMap = new Map(pData.map);
 
 		SceneManager.ClearScenes();
 		SceneManager.ClearAllMapScenes();
-		SceneManager.LoadMapScene(map);
+		SceneManager.LoadMapScene(pData.map);
 
 		PackedScene playerPrefab = (PackedScene)ResourceLoader.Load($"res://prefabs/Player.tscn");
 		Player playerInstance = (Player)playerPrefab.Instance();
 		instance.GetTree().Root.GetNodeOrNull("Game").CallDeferred("add_child", playerInstance);
-		playerInstance.SpawnAt(name, pos, sex, race);
+		playerInstance.SpawnAt(pData);
 
-		GD.Print($"go to map #{map} at pos {pos.x},{pos.y},{pos.z} with char name of {name}");
+		GD.Print($"Go to map #{pData.map} at pos {pData.pos.X},{pData.pos.Y},{pData.pos.Z} with char name of {pData.name}");
 	}
 }

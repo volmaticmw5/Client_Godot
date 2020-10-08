@@ -1,10 +1,11 @@
-[gd_scene load_steps=6 format=2]
+[gd_scene load_steps=7 format=2]
 
 [ext_resource path="res://src/Network/ThreadManager.cs" type="Script" id=1]
 [ext_resource path="res://src/Network/Client.cs" type="Script" id=2]
 [ext_resource path="res://src/Network/NetTest.cs" type="Script" id=3]
 [ext_resource path="res://src/SceneManager.cs" type="Script" id=4]
 [ext_resource path="res://src/GameManager.cs" type="Script" id=5]
+[ext_resource path="res://src/Network/Chat.cs" type="Script" id=6]
 
 [node name="Game" type="Spatial"]
 
@@ -22,3 +23,6 @@ script = ExtResource( 4 )
 
 [node name="GameManager" type="Node" parent="."]
 script = ExtResource( 5 )
+
+[node name="Chat" type="Node" parent="."]
+script = ExtResource( 6 )

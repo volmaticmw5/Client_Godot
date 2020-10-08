@@ -25,6 +25,9 @@
     <Compile Include="src\Network\NetTest.cs" />
     <Compile Include="src\Network\Authentication.cs" />
     <Compile Include="src\Network\Security.cs" />
+	<Compile Include="src\Network\Chat.cs" />
+	<Compile Include="src\Network\TCP.cs" />
+	<Compile Include="src\Network\CharacterSelectionEntry.cs" />
     <Compile Include="src\GameManager.cs" />
     <Compile Include="src\Player\OtherPlayer.cs" />
     <Compile Include="src\SceneManager.cs" />
@@ -32,8 +35,11 @@
 	<Compile Include="src\GUI\Login\CharSlot.cs" />
 	<Compile Include="src\Keybinds.cs" />
 	<Compile Include="src\Player\Player.cs" />
+	<Compile Include="src\Player\PlayerStats.cs" />
 	<Compile Include="src\Player\PlayerCamera.cs" />
 	<Compile Include="src\Player\PlayerMesh.cs" />
+	<Compile Include="src\Player\PlayerData.cs" />
+	<Compile Include="src\Helpers\MathHelper.cs" />
 	<Compile Include="src\GUI\Debug\DebugTexts.cs" />
   </ItemGroup>
 </Project>

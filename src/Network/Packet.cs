@@ -13,7 +13,9 @@ public enum ServerPackets
 	identifyoself,
 	warpTo,
 	alreadyConnected,
-	playersInMap
+	playersInMap,
+	chatInfo,
+	chatConnect,
 }
 
 /// <summary>Sent from client to server.</summary>
@@ -23,7 +25,7 @@ public enum ClientPackets
 	authenticate,
 	enterMap,
 	itsme,
-	myPosition
+	playerBroadcast
 }
 
 public class Packet : IDisposable
@@ -189,6 +191,28 @@ public class Packet : IDisposable
 		Write(_value.y);
 		Write(_value.z);
 		Write(_value.w);
+	}
+
+	/// <summary>
+	/// Writes a playerdata object to the packet
+	/// </summary>
+	/// <param name="data"></param>
+	public void Write(PlayerData data)
+	{
+		Write(data.pid);
+		Write(data.aid);
+		Write(data.sid);
+		Write(data.name);
+		Write(data.level);
+		Write(data.map);
+		Write((int)data.sex);
+		Write((int)data.race);
+		Write(data.pos.X);
+		Write(data.pos.Y);
+		Write(data.pos.Z);
+		Write(data.heading);
+		Write(data.stats.attackSpeed);
+		Write(data.stats.movementSpeed);
 	}
 	#endregion
 
@@ -394,6 +418,53 @@ public class Packet : IDisposable
 		catch
 		{
 			throw new Exception("Could not read value of type 'string'!");
+		}
+	}
+
+	/// <summary>Reads a string from the packet.</summary>
+	/// <param name="_moveReadPos">Whether or not to move the buffer's read position.</param>
+	public CharacterSelectionEntry ReadCharacterSelectionEntry(bool _moveReadPos = true)
+	{
+		try
+		{
+			int pid = ReadInt();
+			string name = ReadString();
+			bool isValid = ReadBool();
+			return new CharacterSelectionEntry(pid, name, isValid);
+		}
+		catch
+		{
+			throw new Exception("Could not read value of type 'CharacterSelectionEntry'!");
+		}
+	}
+
+	/// <summary>Reads a playerdata object.</summary>
+	/// <param name="_moveReadPos"></param>
+	public PlayerData ReadPlayerData(bool _moveReadPos = true)
+	{
+		try
+		{
+			int pid = ReadInt();
+			int aid = ReadInt();
+			int sid = ReadInt();
+			string name = ReadString();
+			int level = ReadInt();
+			int map = ReadInt();
+			Sexes sex = (Sexes)ReadInt();
+			Races race = (Races)ReadInt();
+			float x = ReadFloat();
+			float y = ReadFloat();
+			float z = ReadFloat();
+			int heading = ReadInt();
+			int attSpeed = ReadInt();
+			int movSpeed = ReadInt();
+			PlayerStats stats = new PlayerStats(movSpeed, attSpeed);
+
+			return new PlayerData(pid, aid, sid, name, level,map,sex,race,new System.Numerics.Vector3(x,y,z), heading, stats);
+		}
+		catch
+		{
+			throw new Exception("Could not read value of type 'PlayerData'!");
 		}
 	}
 	#endregion

@@ -13,20 +13,15 @@ public class CharSelection : Control
 	private static CharSelection instance;
 	private Button playBtn;
 
-	public static void SetCharacters(string data)
+	public static void SetCharacters(CharacterSelectionEntry[] characters)
 	{
 		if (Characters != null)
 			Characters.Clear();
 
-		if(data != "")
+		foreach (CharacterSelectionEntry entry in characters)
 		{
-			string[] chars = data.Split("/end/");
-			for (int i = 0; i < chars.Length; i++)
-			{
-				if (i > 7) break;
-				string[] contents = chars[i].Split(';');
-				Characters.Add(new iCharSlot(Int32.Parse(contents[0]), contents[1]));
-			}
+			if(entry.isValidCharacter)
+				Characters.Add(new iCharSlot(entry.pid, entry.name));
 		}
 	}
 
