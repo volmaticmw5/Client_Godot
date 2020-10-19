@@ -11,4 +11,5 @@ public class Keybinds
 	public static int KEYBIND_ROTATE_LEFT = (int)Godot.KeyList.Q;
 	public static int KEYBIND_ROTATE_RIGHT = (int)Godot.KeyList.E;
 	public static int KEYBIND_ATTACK = (int)Godot.KeyList.Space;
+	public static int KEYBIND_ACCEPT = (int)Godot.KeyList.Enter;
 }

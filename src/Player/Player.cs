@@ -5,14 +5,14 @@ using System.Text;
 using System.Threading.Tasks;
 using Godot;
 
-public enum Races
+public enum PLAYER_RACES
 {
 	HUMAN = 1,
 	INFECTED = 2,
 	ORCS = 3
 }
 
-public enum Sexes
+public enum PLAYER_SEXES
 {
 	MALE = 1,
 	FEMALE = 1
@@ -75,6 +75,13 @@ public class Player : KinematicBody
 		camera = cameraRot.GetNode<Spatial>("Camera");
 		playerCamera = new PlayerCamera();
 		animTree = mesh.FindNode("AnimationTree", true, false) as AnimationTree;
+
+		using (Packet packet = new Packet((int)ClientPackets.playerInstancedSignal))
+		{
+			packet.Write(Client.instance.getCID());
+			packet.Write(Client.instance.getSessionId());
+			Client.SendTCPData(packet);
+		}
 	}
 
 	private void ApplyRotationBasedOnMovement(Vector3 cam_x, Vector3 cam_z, float delta)
@@ -222,8 +229,8 @@ public class Player : KinematicBody
 		myPlayerData = _pData;
 		this.name = myPlayerData.name;
 		this.stats = myPlayerData.stats;
-		string raceName = Enum.GetName(typeof(Races), myPlayerData.race).ToString().ToLower();
-		string sexName = Enum.GetName(typeof(Sexes), myPlayerData.sex).ToString().ToLower();
+		string raceName = Enum.GetName(typeof(PLAYER_RACES), myPlayerData.race).ToString().ToLower();
+		string sexName = Enum.GetName(typeof(PLAYER_SEXES), myPlayerData.sex).ToString().ToLower();
 		PackedScene playerMeshResource = (PackedScene)ResourceLoader.Load($"res://prefabs/3d/characters/player/{raceName}/{sexName}/{sexName}.tscn");
 		mesh = playerMeshResource.Instance() as PlayerMesh;
 		AddChild(mesh);

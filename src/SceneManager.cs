@@ -9,6 +9,8 @@ public enum ScenePrefabs
 {
 	LoginGUI,
 	SelectionGUI,
+	Inventory,
+	Console,
 }
 
 public enum MapIndexes
@@ -24,6 +26,8 @@ public class SceneManager : Node
 	{
 		{ ScenePrefabs.LoginGUI, new [] { "res://prefabs/UI/LoginGUI.tscn", "Game/LoginGUI" } },
 		{ ScenePrefabs.SelectionGUI, new [] {"res://prefabs/UI/SelectionGUI.tscn", "Game/SelectionGUI"} },
+		{ ScenePrefabs.Inventory, new [] {"res://prefabs/UI/Inventory.tscn", "Game/Inventory"} },
+		{ ScenePrefabs.Console, new [] {"res://prefabs/UI/Console.tscn", "Game/Console"} },
 	};
 	private static List<string> mapScenesPaths = new List<string>();
 
@@ -125,6 +129,9 @@ public class SceneManager : Node
 		PackedScene packed = (PackedScene)ResourceLoader.Load($"res://prefabs/maps/{enum_to_str}.tscn");
 		instance.GetTree().Root.GetNodeOrNull("Game").CallDeferred("add_child", packed.Instance());
 		mapScenesPaths.Add($"Game/{enum_to_str}");
+
+		SceneManager.TryAddSceneNoDupe(ScenePrefabs.Inventory);
+		SceneManager.TryAddSceneNoDupe(ScenePrefabs.Console);
 	}
 
 	public static void ToLogin()

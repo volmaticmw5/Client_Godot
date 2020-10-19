@@ -1,0 +1,34 @@
+[gd_scene load_steps=2 format=2]
+
+[ext_resource path="res://src/GUI/Console.cs" type="Script" id=1]
+
+[node name="Console" type="Control"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+script = ExtResource( 1 )
+__meta__ = {
+"_edit_use_anchors_": false
+}
+InputNodePath = NodePath("Input")
+ConsoleContentsPath = NodePath("Contents")
+
+[node name="Input" type="LineEdit" parent="."]
+anchor_left = 0.5
+anchor_right = 0.5
+margin_left = -200.512
+margin_top = 540.888
+margin_right = 199.488
+margin_bottom = 564.888
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="Contents" type="RichTextLabel" parent="."]
+margin_left = 310.458
+margin_top = 433.111
+margin_right = 710.458
+margin_bottom = 539.111
+__meta__ = {
+"_edit_use_anchors_": false
+}
+[connection signal="text_entered" from="Input" to="." method="_on_LineEdit_text_entered"]

@@ -1,0 +1,18 @@
+[gd_scene load_steps=2 format=2]
+
+[ext_resource path="res://textures/ui/slot.PNG" type="Texture" id=1]
+
+[node name="SlotPrefab" type="Control"]
+margin_right = 25.0
+margin_bottom = 25.0
+grow_horizontal = 0
+grow_vertical = 0
+rect_min_size = Vector2( 25, 25 )
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="TextureRect" type="TextureRect" parent="."]
+margin_right = 25.0
+margin_bottom = 25.0
+texture = ExtResource( 1 )

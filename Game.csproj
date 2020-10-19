@@ -17,7 +17,12 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="src\Config.cs" />
+    <Compile Include="src\GUI\Console.cs" />
     <Compile Include="src\GUI\Login\LoginManager.cs" />
+    <Compile Include="src\Helpers\LocaleReader.cs" />
+    <Compile Include="src\Item\Item.cs" />
+    <Compile Include="src\Item\ItemData.cs" />
     <Compile Include="src\Map\Map.cs" />
     <Compile Include="src\Network\Packet.cs" />
     <Compile Include="src\Network\ThreadManager.cs" />
@@ -25,7 +30,6 @@
     <Compile Include="src\Network\NetTest.cs" />
     <Compile Include="src\Network\Authentication.cs" />
     <Compile Include="src\Network\Security.cs" />
-	<Compile Include="src\Network\Chat.cs" />
 	<Compile Include="src\Network\TCP.cs" />
 	<Compile Include="src\Network\CharacterSelectionEntry.cs" />
     <Compile Include="src\GameManager.cs" />
@@ -41,5 +45,9 @@
 	<Compile Include="src\Player\PlayerData.cs" />
 	<Compile Include="src\Helpers\MathHelper.cs" />
 	<Compile Include="src\GUI\Debug\DebugTexts.cs" />
+	<Compile Include="src\GUI\Inventory\Inventory.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="locale\" />
   </ItemGroup>
 </Project>

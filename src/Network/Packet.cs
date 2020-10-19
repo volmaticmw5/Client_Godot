@@ -14,18 +14,20 @@ public enum ServerPackets
 	warpTo,
 	alreadyConnected,
 	playersInMap,
-	chatInfo,
-	chatConnect,
+	chatCb,
+	updateInventory
 }
 
-/// <summary>Sent from client to server.</summary>
 public enum ClientPackets
 {
 	pong,
 	authenticate,
 	enterMap,
 	itsme,
-	playerBroadcast
+	playerInstancedSignal,
+	playerBroadcast,
+	chatMsg,
+	itemChangePosition
 }
 
 public class Packet : IDisposable
@@ -450,8 +452,8 @@ public class Packet : IDisposable
 			string name = ReadString();
 			int level = ReadInt();
 			int map = ReadInt();
-			Sexes sex = (Sexes)ReadInt();
-			Races race = (Races)ReadInt();
+			PLAYER_SEXES sex = (PLAYER_SEXES)ReadInt();
+			PLAYER_RACES race = (PLAYER_RACES)ReadInt();
 			float x = ReadFloat();
 			float y = ReadFloat();
 			float z = ReadFloat();
@@ -466,6 +468,34 @@ public class Packet : IDisposable
 		{
 			throw new Exception("Could not read value of type 'PlayerData'!");
 		}
+	}
+
+	public Item ReadItem(bool _moveReadPos = true)
+	{
+		try
+		{
+			long iid = ReadLong();
+			ItemData data = ReadItemData();
+			int count = ReadInt();
+			int window = ReadInt();
+			int pos = ReadInt();
+
+			Item nItem = new Item();
+			nItem.SetItemData(iid, data, count, (Item.WINDOW)window, pos);
+			return nItem;
+		}
+		catch { throw new Exception("Could not read value of type 'Item'!"); }
+	}
+
+	public ItemData ReadItemData(bool _moveReadPos = true)
+	{
+		try
+		{
+			int vnum = ReadInt();
+			ItemData targetData = Config.Items[vnum];
+			return targetData;
+		}
+		catch { throw new Exception("Could not read value of type 'ItemData'!"); }
 	}
 	#endregion
 

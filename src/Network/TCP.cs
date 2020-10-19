@@ -6,6 +6,12 @@ using System.Net.Sockets;
 using System.Text;
 using System.Threading.Tasks;
 
+public enum SERVER_TYPE
+{
+	GAME,
+	CHAT
+}
+
 public class TCP
 {
 	public static int buffer_size = 512;
@@ -15,9 +21,11 @@ public class TCP
 	private Packet receivedData;
 	private string addr;
 	private int port;
+	private SERVER_TYPE type;
 
-	public TCP(string _addr, int _port)
+	public TCP(string _addr, int _port, SERVER_TYPE _type)
 	{
+		this.type = _type;
 		this.addr = _addr;
 		this.port = _port;
 	}
@@ -40,7 +48,9 @@ public class TCP
 		if (!succ)
 		{
 			GD.Print($"Error while connecting to the server.");
-			SceneManager.ToLogin();
+
+			if (type == SERVER_TYPE.GAME)
+				SceneManager.ToLogin();
 			return;
 		}
 		else
@@ -60,8 +70,10 @@ public class TCP
 			}
 			catch (Exception ex)
 			{
-				GD.Print($"Error while connecting to the server: {ex.Message}");
-				SceneManager.ToLogin();
+				GD.Print($"Error while connecting to the server: {ex.Message}"); 
+
+				if (type == SERVER_TYPE.GAME)
+					SceneManager.ToLogin();
 				return;
 			}
 		}
@@ -150,8 +162,6 @@ public class TCP
 	{
 		if (Client.instance != null)
 			Client.instance.Disconnect(code);
-		if (Chat.instance != null)
-			Chat.instance.Disconnect(code);
 
 		stream = null;
 		receivedBuffer = null;

@@ -14,8 +14,8 @@ public class OtherPlayer : KinematicBody
 
 	public int pid { get; private set; }
 	public int level { get; private set; }
-	public Races race { get; private set; }
-	public Sexes sex { get; private set; }
+	public PLAYER_RACES race { get; private set; }
+	public PLAYER_SEXES sex { get; private set; }
 	public string name { get; private set; }
 	public Vector3 position { get; private set; }
 	public PlayerStats stats { get; private set; }
@@ -31,8 +31,8 @@ public class OtherPlayer : KinematicBody
 		this.level = data.level;
 		this.name = data.name;
 		this.position = new Vector3(data.pos.X, data.pos.Y, data.pos.Z);
-		this.race = (Races)data.race;
-		this.sex = (Sexes)data.sex;
+		this.race = (PLAYER_RACES)data.race;
+		this.sex = (PLAYER_SEXES)data.sex;
 		this.stats = data.stats;
 		this.heading = data.heading;
 		Spawn();
@@ -47,8 +47,8 @@ public class OtherPlayer : KinematicBody
 
 	public void Spawn()
 	{
-		string raceName = Enum.GetName(typeof(Races), race).ToString().ToLower();
-		string sexName = Enum.GetName(typeof(Sexes), sex).ToString().ToLower();
+		string raceName = Enum.GetName(typeof(PLAYER_RACES), race).ToString().ToLower();
+		string sexName = Enum.GetName(typeof(PLAYER_SEXES), sex).ToString().ToLower();
 		PackedScene playerMeshResource = (PackedScene)ResourceLoader.Load($"res://prefabs/3d/characters/player/{raceName}/{sexName}/{sexName}.tscn");
 		mesh = playerMeshResource.Instance() as PlayerMesh;
 		CallDeferred("add_child", mesh);

@@ -14,7 +14,7 @@ public class Client : Node
 	public static int AuthenticationPort = 55000;
 
 	private int ClientID = -1;
-	private TCP tcp;
+	public TCP tcp;
 	private int session_id = -1;
 
 	public delegate void PacketHandler(Packet packet);
@@ -25,6 +25,17 @@ public class Client : Node
 		if (instance == null)
 			instance = this;
 		InitializeClientData();
+	}
+
+	public bool isConnected()
+	{
+		if (Client.instance.tcp == null)
+			return false;
+		if (Client.instance.tcp.socket == null)
+			return false;
+		if (Client.instance.tcp.socket.Connected)
+			return true;
+		return false;
 	}
 
 	internal void setSessionId(int _session_id)
@@ -67,10 +78,8 @@ public class Client : Node
 			{(int)ServerPackets.identifyoself, Authentication.IdentifyMyself },
 			{(int)ServerPackets.warpTo, SceneManager.WarpTo },
 			{(int)ServerPackets.playersInMap, Map.HandlePlayersInMap },
-
-			// Chat
-			{(int)ServerPackets.chatInfo, Chat.ConnectToChatServerAt },
-			{(int)ServerPackets.chatConnect, Chat.ChatConnectionCallback },
+			{(int)ServerPackets.chatCb, Console.NewConsoleEntry },
+			{(int)ServerPackets.updateInventory, Inventory.Update },
 		};
 		GD.Print("Initialized client packets.");
 	}
@@ -90,14 +99,14 @@ public class Client : Node
 		await Task.Delay(1000);
 
 		GD.Print($"Connecting to game server on {addr} on port {port}...");
-		tcp = new TCP(addr, port);
+		tcp = new TCP(addr, port, SERVER_TYPE.GAME);
 		tcp.Connect();
 	}
 
 	public void ConnectToAuthenticationServer()
 	{
 		GD.Print($"Connecting to authentication server on {AuthenticationServerAddr} on port {AuthenticationPort}...");
-		tcp = new TCP(AuthenticationServerAddr, AuthenticationPort);
+		tcp = new TCP(AuthenticationServerAddr, AuthenticationPort, SERVER_TYPE.GAME);
 		tcp.Connect();
 	}
 

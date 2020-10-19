@@ -1,0 +1,43 @@
+[gd_scene load_steps=4 format=2]
+
+[ext_resource path="res://src/Item/Item.cs" type="Script" id=1]
+[ext_resource path="res://prefabs/UI/fonts/font_karla_outlined_small.tres" type="DynamicFont" id=2]
+[ext_resource path="res://prefabs/UI/themes/icon_slot_theme.tres" type="Theme" id=3]
+
+[node name="Item_2_slot" type="Button"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+margin_right = -999.0
+margin_bottom = -550.0
+rect_min_size = Vector2( 25, 50 )
+flat = true
+script = ExtResource( 1 )
+__meta__ = {
+"_edit_use_anchors_": false
+}
+iconPath = NodePath("icon")
+iconCountPath = NodePath("Count")
+
+[node name="icon" type="TextureRect" parent="."]
+margin_right = 25.0
+margin_bottom = 50.0
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="Count" type="Label" parent="."]
+margin_right = 25.0
+margin_bottom = 50.0
+rect_min_size = Vector2( 25, 50 )
+theme = ExtResource( 3 )
+custom_fonts/font = ExtResource( 2 )
+custom_colors/font_color = Color( 0.898039, 0.898039, 0.898039, 1 )
+custom_colors/font_outline_modulate = Color( 0, 0, 0, 1 )
+text = "1"
+align = 2
+valign = 2
+__meta__ = {
+"_edit_use_anchors_": false
+}
+[connection signal="button_down" from="." to="." method="StartDrag"]
+[connection signal="button_up" from="." to="." method="EndDrag"]

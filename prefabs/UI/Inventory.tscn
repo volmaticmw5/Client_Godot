@@ -1,0 +1,56 @@
+[gd_scene load_steps=2 format=2]
+
+[ext_resource path="res://src/GUI/Inventory/Inventory.cs" type="Script" id=1]
+
+[node name="Inventory" type="Control"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+script = ExtResource( 1 )
+__meta__ = {
+"_edit_use_anchors_": false
+}
+InventoryWidth = 5
+InventoryHeight = 8
+inventorySlotPath = "prefabs/UI/SlotPrefab.tscn"
+
+[node name="Window" type="Control" parent="."]
+anchor_left = 1.0
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+margin_left = -171.0
+margin_top = -450.0
+margin_right = -30.9999
+margin_bottom = -49.9999
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="CanvasLayer" type="CanvasLayer" parent="Window"]
+layer = 97
+
+[node name="Background" type="ColorRect" parent="Window/CanvasLayer"]
+margin_left = 853.0
+margin_top = 150.0
+margin_right = 993.0
+margin_bottom = 550.0
+color = Color( 0.168627, 0.168627, 0.168627, 1 )
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="InventoryList" type="GridContainer" parent="Window/CanvasLayer"]
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+margin_left = 348.0
+margin_top = 25.0
+margin_right = 473.0
+margin_bottom = 225.0
+custom_constants/vseparation = 0
+custom_constants/hseparation = 0
+columns = 5
+__meta__ = {
+"_edit_use_anchors_": false
+}
