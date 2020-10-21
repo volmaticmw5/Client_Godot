@@ -12,6 +12,9 @@ __meta__ = {
 InventoryWidth = 5
 InventoryHeight = 8
 inventorySlotPath = "prefabs/UI/SlotPrefab.tscn"
+EquipSlotWeaponPath = NodePath("Window/CanvasLayer/EquipSlot_Weapon")
+InventoryParentPath = NodePath("Window/CanvasLayer/InventoryList")
+itemHolderPath = NodePath("Window/CanvasLayer/ItemHolder")
 
 [node name="Window" type="Control" parent="."]
 anchor_left = 1.0
@@ -39,6 +42,16 @@ __meta__ = {
 "_edit_use_anchors_": false
 }
 
+[node name="EquipSlot_Weapon" type="Control" parent="Window/CanvasLayer"]
+margin_left = 870.0
+margin_top = 239.0
+margin_right = 895.0
+margin_bottom = 289.0
+rect_min_size = Vector2( 25, 50 )
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
 [node name="InventoryList" type="GridContainer" parent="Window/CanvasLayer"]
 anchor_left = 0.5
 anchor_top = 0.5
@@ -51,6 +64,13 @@ margin_bottom = 225.0
 custom_constants/vseparation = 0
 custom_constants/hseparation = 0
 columns = 5
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="ItemHolder" type="Control" parent="Window/CanvasLayer"]
+margin_right = 40.0
+margin_bottom = 40.0
 __meta__ = {
 "_edit_use_anchors_": false
 }

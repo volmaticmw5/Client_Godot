@@ -11,7 +11,8 @@ public class Item : Button
 	{
 		NONE,
 		INVENTORY,
-		STORAGE
+		STORAGE,
+		EQUIPABLES
 	}
 
 	public long iid { get; private set; }
@@ -27,6 +28,7 @@ public class Item : Button
 	private bool instanced;
 	private bool dragging;
 	private Vector2 dragPosition;
+	private WINDOW lastWindow;
 
 	public void UpdateFromServer(Item server_item)
 	{
@@ -45,6 +47,7 @@ public class Item : Button
 		this.window = _window;
 		this.position = _pos;
 		lastPos = this.position;
+		lastWindow = this.window;
 	}
 
 	public override void _Ready()
@@ -72,23 +75,20 @@ public class Item : Button
 		}
 
 		int slotPos = getSlotPositionUnderMouse();
-		if (window == WINDOW.INVENTORY)
+		clearSlotModulates();
+		Inventory.inventory_slots[slotPos].Modulate = new Color(1f, 0.8f, 1f);
+		if(data.size > 1 && slotPos + Inventory.instance.InventoryWidth < Inventory.inventory_slots.Length)
 		{
-			clearSlotModulates();
-			Inventory.slots[slotPos].Modulate = new Color(1f, 0.8f, 1f);
-			if(data.size > 1 && slotPos + Inventory.instance.InventoryWidth < Inventory.slots.Length)
-			{
-				if (Inventory.slots[slotPos + Inventory.instance.InventoryWidth] != null)
-					Inventory.slots[slotPos + Inventory.instance.InventoryWidth].Modulate = new Color(1f, 0.8f, 1f);
-			}
+			if (Inventory.inventory_slots[slotPos + Inventory.instance.InventoryWidth] != null)
+				Inventory.inventory_slots[slotPos + Inventory.instance.InventoryWidth].Modulate = new Color(1f, 0.8f, 1f);
 		}
 	}
 
 	private void clearSlotModulates()
 	{
-		for (int i = 0; i < Inventory.slots.Length; i++)
-			if (Inventory.slots[i] != null)
-				Inventory.slots[i].Modulate = new Color(1f, 1f, 1f);
+		for (int i = 0; i < Inventory.inventory_slots.Length; i++)
+			if (Inventory.inventory_slots[i] != null)
+				Inventory.inventory_slots[i].Modulate = new Color(1f, 1f, 1f);
 	}
 
 	int lastRightclickCheck = 0;
@@ -105,10 +105,17 @@ public class Item : Button
 			{
 				if (lastRightclickCheck == 1)
 				{
-					GD.Print("use item");
-					//currentSlot.item.RequestUse();
-					//nItemDesc.HideDesc();
-					//nItemDescWeapon.HideDesc();
+					int pos = getSlotPositionUnderMouse();
+					if (pos > 0)
+						requestItemUsage(pos);
+					else
+					{
+						if(window == WINDOW.EQUIPABLES)
+						{
+							if (data.type == ITEM_TYPES.WEAPON)
+								requestItemUsage(1);
+						}
+					}
 				}
 				else
 					lastRightclickCheck = 0;
@@ -126,11 +133,26 @@ public class Item : Button
 		icon = GetNode<TextureRect>(iconPath);
 		iconCount = GetNode<Label>(iconCountPath);
 		icon.Texture = ResourceLoader.Load<Texture>($"res://prefabs/UI/icons/items/{data.vnum}.png");
-		RectGlobalPosition = Inventory.slots[position].RectGlobalPosition;
-		if (data.size == 1)
-			SetSize(new Vector2(25f, 25f));
+		setPosition();
+		setSize();
 		UpdateItemCountLabel();
 		instanced = false;
+	}
+
+	private void setSize()
+	{
+		if (data.size == 1)
+			SetSize(new Vector2(25f, 25f));
+		else
+			SetSize(new Vector2(25f, 50f));
+	}
+
+	private void setPosition()
+	{
+		if (window == WINDOW.INVENTORY)
+			RectGlobalPosition = Inventory.inventory_slots[position].RectGlobalPosition;
+		else if (window == WINDOW.EQUIPABLES)
+			RectGlobalPosition = Inventory.equipable_slots[position].RectGlobalPosition;
 	}
 
 	private void UpdateItemCountLabel()
@@ -147,18 +169,26 @@ public class Item : Button
 
 	private void UpdateItemPosition()
 	{
-		if (lastPos == position)
-			return;
-
 		Name = "icon_" + data.vnum + "_" + position;
-		RectGlobalPosition = Inventory.slots[position].RectGlobalPosition;
+		if (lastPos != position || lastWindow != window)
+		{
+			if (window == WINDOW.INVENTORY)
+			{
+				RectGlobalPosition = Inventory.inventory_slots[position].RectGlobalPosition;
+			}
+			else if (window == WINDOW.EQUIPABLES)
+			{
+				RectGlobalPosition = Inventory.equipable_slots[position].RectGlobalPosition;
+			}
+		}
 
 		lastPos = position;
+		lastWindow = window;
 	}
 
 	private int getSlotPositionUnderMouse()
 	{
-		foreach (Control slot in Inventory.slots)
+		foreach (Control slot in Inventory.inventory_slots)
 		{
 			if(slot == null)
 				continue;
@@ -175,13 +205,20 @@ public class Item : Button
 
 	private void returnItemToOriginalPosition()
 	{
-		RectGlobalPosition = Inventory.slots[position].RectGlobalPosition;
+		if(window == WINDOW.INVENTORY)
+		{
+			RectGlobalPosition = Inventory.inventory_slots[position].RectGlobalPosition;
+		}
+		else
+		{
+			RectGlobalPosition = Inventory.equipable_slots[position].RectGlobalPosition;
+		}
 	}
 
 	private WINDOW getTargetWindow()
 	{
 		bool isInventory = false;
-		foreach (Control slot in Inventory.slots)
+		foreach (Control slot in Inventory.inventory_slots)
 		{
 			if (slot == null)
 				continue;
@@ -193,7 +230,7 @@ public class Item : Button
 			}
 		}
 
-		if (isInventory && window == WINDOW.INVENTORY)
+		if (isInventory)
 			return WINDOW.INVENTORY;
 
 		return WINDOW.NONE;
@@ -225,27 +262,22 @@ public class Item : Button
 	public void EndDrag()
 	{
 		WINDOW targetWindow = getTargetWindow();
-		if (targetWindow == WINDOW.INVENTORY)
-		{
-			int pos = getSlotPositionUnderMouse();
-			requestItemMove(pos);
-			interruptDragging();
-		}
-		else if(targetWindow == WINDOW.STORAGE)
-		{
-			GD.Print($"move to {targetWindow.ToString()} window");
-			interruptDragging();
-		}
-		else if(targetWindow == WINDOW.NONE)
+
+		int pos = getSlotPositionUnderMouse();
+		if(targetWindow == WINDOW.NONE)
 		{
 			GD.Print("thow item away?");
-			interruptDragging();
+		}
+		else
+		{
+			requestItemMove(targetWindow, pos);
 		}
 
+		interruptDragging();
 		clearSlotModulates();
 	}
 
-	private void requestItemMove(int newPos)
+	private void requestItemMove(WINDOW target_window, int newPos)
 	{
 		using (Packet packet = new Packet((int)ClientPackets.itemChangePosition))
 		{
@@ -253,6 +285,19 @@ public class Item : Button
 			packet.Write(Client.instance.getSessionId());
 			packet.Write(iid);
 			packet.Write(newPos);
+			packet.Write((int)target_window);
+			Client.SendTCPData(packet);
+		}
+	}
+
+	private void requestItemUsage(int pos)
+	{
+		GD.Print($"request item usage at window {window.ToString()} and position {pos}");
+		using (Packet packet = new Packet((int)ClientPackets.itemUse))
+		{
+			packet.Write(Client.instance.getCID());
+			packet.Write(Client.instance.getSessionId());
+			packet.Write(pos);
 			packet.Write((int)window);
 			Client.SendTCPData(packet);
 		}

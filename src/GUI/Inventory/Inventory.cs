@@ -14,18 +14,30 @@ public class Inventory : Control
 	[Export] public int InventoryWidth;
 	[Export] public int InventoryHeight;
 	[Export] public string inventorySlotPath;
-	public static Control[] slots;
+	[Export] public NodePath EquipSlotWeaponPath;
+	[Export] public NodePath InventoryParentPath;
+	public Control EquipSlotWeapon;
+	public static Control[] inventory_slots;
+	public static Control[] equipable_slots;
 	public static bool draggingItem = false;
+	public GridContainer inventory_parent;
+	[Export] public NodePath itemHolderPath;
+	public Control itemHolder;
 
 	public override void _Ready()
 	{
-		slots = new Control[(InventoryWidth * InventoryHeight) +1];
+		itemHolder = GetNode<Control>(itemHolderPath);
+		EquipSlotWeapon = GetNode<Control>(EquipSlotWeaponPath);
+		inventory_slots = new Control[(InventoryHeight * InventoryWidth) + 1];
+		equipable_slots = new Control[2];
 		buildInventorySlots();
+		buildEquipableSlots();
 		instance = this;
 	}
 
 	private void buildInventorySlots()
 	{
+		inventory_parent = GetNode<GridContainer>(InventoryParentPath);
 		PackedScene slotPs = (PackedScene)ResourceLoader.Load(inventorySlotPath);
 		int pos = 1;
 		float margin_left = 0;
@@ -37,8 +49,8 @@ public class Inventory : Control
 				Control slot = slotPs.Instance() as Control;
 				slot.Name = $"slot_{pos}";
 				slot.RectPosition = new Vector2(margin_left, margin_top);
-				GetNode<GridContainer>("Window/CanvasLayer/InventoryList").CallDeferred("add_child", slot);
-				slots[pos] = slot;
+				inventory_parent.CallDeferred("add_child", slot);
+				inventory_slots[pos] = slot;
 				margin_left += 25f;
 				pos++;
 			}
@@ -47,12 +59,32 @@ public class Inventory : Control
 		}
 	}
 
+	private void buildEquipableSlots()
+	{
+		PackedScene slotPs = (PackedScene)ResourceLoader.Load(inventorySlotPath);
+		int pos = 1;
+
+		// Weapon slots
+		for (int i = 0; i < 2; i++)
+		{
+			Control slot = slotPs.Instance() as Control;
+			slot.Name = $"slot_weapon_{i}";
+			slot.RectPosition = new Vector2(0f, 25f * i);
+			EquipSlotWeapon.CallDeferred("add_child", slot);
+			if(i == 0)
+				equipable_slots[pos] = slot;
+
+			pos++;
+		}
+
+	}
+
 	public void addItemToInventory(Item item)
 	{
 		PackedScene itemPS = (PackedScene)ResourceLoader.Load($"res://prefabs/UI/Item_{item.data.size}_slot.tscn");
 		Item newItem = itemPS.Instance() as Item;
 		newItem.SetItemData(item.iid, item.data, item.count, item.window, item.position);
-		GetNode<GridContainer>("Window/CanvasLayer/InventoryList").CallDeferred("add_child", newItem);
+		itemHolder.CallDeferred("add_child", newItem);
 		items_in_client.Add(newItem);
 	}
 
@@ -67,6 +99,7 @@ public class Inventory : Control
 			return;
 		
 		items_from_server = _items;
+		
 		for (int s = 0; s < items_from_server.Count; s++)
 		{
 			bool exists_in_client = false;

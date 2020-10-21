@@ -15,17 +15,21 @@ script = ExtResource( 1 )
 __meta__ = {
 "_edit_use_anchors_": false
 }
-iconPath = NodePath("icon")
-iconCountPath = NodePath("Count")
+iconPath = NodePath("Node2D/icon")
+iconCountPath = NodePath("Node2D/Count")
 
-[node name="icon" type="TextureRect" parent="."]
+[node name="Node2D" type="Node2D" parent="."]
+z_index = 999
+
+[node name="icon" type="TextureRect" parent="Node2D"]
 margin_right = 25.0
 margin_bottom = 50.0
+rect_min_size = Vector2( 25, 50 )
 __meta__ = {
 "_edit_use_anchors_": false
 }
 
-[node name="Count" type="Label" parent="."]
+[node name="Count" type="Label" parent="Node2D"]
 margin_right = 25.0
 margin_bottom = 50.0
 rect_min_size = Vector2( 25, 50 )

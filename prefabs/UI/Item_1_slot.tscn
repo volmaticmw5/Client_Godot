@@ -15,10 +15,13 @@ script = ExtResource( 1 )
 __meta__ = {
 "_edit_use_anchors_": false
 }
-iconPath = NodePath("icon")
-iconCountPath = NodePath("Count")
+iconPath = NodePath("Node2D/icon")
+iconCountPath = NodePath("Node2D/Count")
 
-[node name="icon" type="TextureRect" parent="."]
+[node name="Node2D" type="Node2D" parent="."]
+z_index = 999
+
+[node name="icon" type="TextureRect" parent="Node2D"]
 margin_right = 25.0
 margin_bottom = 25.0
 rect_min_size = Vector2( 25, 25 )
@@ -26,9 +29,10 @@ __meta__ = {
 "_edit_use_anchors_": false
 }
 
-[node name="Count" type="Label" parent="."]
+[node name="Count" type="Label" parent="Node2D"]
 margin_right = 25.0
 margin_bottom = 25.0
+rect_min_size = Vector2( 25, 25 )
 theme = ExtResource( 3 )
 custom_fonts/font = ExtResource( 2 )
 custom_colors/font_color = Color( 0.898039, 0.898039, 0.898039, 1 )
