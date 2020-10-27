@@ -20,6 +20,7 @@ public class OtherPlayer : KinematicBody
 	public Vector3 position { get; private set; }
 	public PlayerStats stats { get; private set; }
 	public int heading { get; private set; }
+	public bool attacking { get; private set; }
 
 	private float currentAnimTimeScale = 1f;
 	private float currentBlendPosition = 1f;
@@ -35,6 +36,7 @@ public class OtherPlayer : KinematicBody
 		this.sex = (PLAYER_SEXES)data.sex;
 		this.stats = data.stats;
 		this.heading = data.heading;
+		this.attacking = data.attacking;
 		Spawn();
 	}
 
@@ -43,6 +45,7 @@ public class OtherPlayer : KinematicBody
 		this.position = new Vector3(data.pos.X, data.pos.Y, data.pos.Z);
 		this.level = data.level;
 		this.heading = data.heading;
+		this.attacking = data.attacking;
 	}
 
 	public void Spawn()
@@ -66,6 +69,13 @@ public class OtherPlayer : KinematicBody
 	public override void _Process(float delta)
 	{
 		UpdateGamePosition(delta);
+
+		if(attacking)
+		{
+			animTree.Set("parameters/TimeScale/scale", ANIMATION_SPEEDS.ATTACK_ANIM_SPEED * stats.attackSpeed);
+			animTree.Set("parameters/State/current", ANIMATION_STATES.ATTACK);
+		}
+
 		lastPos = Transform.origin;
 	}
 
@@ -73,7 +83,11 @@ public class OtherPlayer : KinematicBody
 	{
 		SetRotationDegrees(new Vector3(mesh.RotationDegrees.x, heading, mesh.RotationDegrees.z));
 
-		animTree.Set("parameters/State/current", ANIMATION_STATES.WALK);
+		if (!attacking)
+		{
+			animTree.Set("parameters/State/current", ANIMATION_STATES.WALK);
+		}
+
 		if (MathHelper.Distance(new System.Numerics.Vector3(lastPos.x, lastPos.y, lastPos.z), new System.Numerics.Vector3(position.x, position.y, position.z)) <= 0.5f)
 		{
 			currentAnimTimeScale = 1f;

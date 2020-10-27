@@ -37,6 +37,11 @@ class MathHelper
         return Vector3.Distance(from, to);
     }
 
+    public static float Distance(Godot.Vector3 from, Godot.Vector3 to)
+    {
+        return Vector3.Distance(new Vector3(from.x, from.y, from.z), new Vector3(to.x, to.y, to.z));
+    }
+
     public static int TimestampSeconds()
     {
         return (Int32)(DateTime.UtcNow.Subtract(new DateTime(1970, 1, 1))).TotalSeconds;

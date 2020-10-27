@@ -1,9 +1,10 @@
-[gd_scene load_steps=5 format=2]
+[gd_scene load_steps=6 format=2]
 
 [ext_resource path="res://addons/zylann.hterrain/hterrain.gd" type="Script" id=1]
 [ext_resource path="res://prefabs/maps/map_tests/data.hterrain" type="Resource" id=2]
 [ext_resource path="res://textures/UV_Grid_Lrg.jpg" type="Texture" id=3]
 [ext_resource path="res://prefabs/UI/DebugTexts.tscn" type="PackedScene" id=4]
+[ext_resource path="res://src/Tools/MapDataExporter.tscn" type="PackedScene" id=5]
 
 [node name="map_tests" type="Spatial"]
 
@@ -29,3 +30,9 @@ ground/normal_roughness_3 = null
 transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 83.1922, 0, 77.1864 )
 
 [node name="DebugTexts" parent="." instance=ExtResource( 4 )]
+
+[node name="MapDataExporter" parent="." instance=ExtResource( 5 )]
+transform = Transform( 0.995797, 0, -0.0915885, 0, 1, 0, 0.0915885, 0, 0.995797, 0, 0, 0 )
+exclude_parent = false
+Size = Vector2( 512, 512 )
+MaxHeight = 1000.0

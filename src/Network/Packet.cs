@@ -14,8 +14,9 @@ public enum ServerPackets
 	warpTo,
 	alreadyConnected,
 	playersInMap,
+	mobsInMap,
 	chatCb,
-	updateInventory
+	updateInventory,
 }
 
 public enum ClientPackets
@@ -28,7 +29,8 @@ public enum ClientPackets
 	playerBroadcast,
 	chatMsg,
 	itemChangePosition,
-	itemUse
+	itemUse,
+	weaponHit
 }
 
 public class Packet : IDisposable
@@ -218,6 +220,7 @@ public class Packet : IDisposable
 		Write(data.stats.movementSpeed);
 		Write(data.stats.pAttack);
 		Write(data.stats.mAttack);
+		Write(data.attacking);
 	}
 	#endregion
 
@@ -466,12 +469,29 @@ public class Packet : IDisposable
 			float pAttack = ReadFloat();
 			float mAttack = ReadFloat();
 			PlayerStats stats = new PlayerStats(movSpeed, attSpeed, pAttack, mAttack);
-			return new PlayerData(pid, aid, sid, name, level, map, sex, race, new System.Numerics.Vector3(x, y, z), heading, stats);
+			bool attacking = ReadBool();
+			return new PlayerData(pid, aid, sid, name, level, map, sex, race, new System.Numerics.Vector3(x, y, z), heading, stats, attacking);
 		}
 		catch
 		{
 			throw new Exception("Could not read value of type 'PlayerData'!");
 		}
+	}
+
+	public Mob ReadMob(bool _moveReadPos = true)
+	{
+		try
+		{
+			int mid = ReadInt();
+			int id = ReadInt();
+			float hp = ReadFloat();
+			float maxHp = ReadFloat();
+			Vector3 pos = ReadVector3();
+			Mob mob = new Mob();
+			mob.Init(Config.Mobs[id], mid, hp, maxHp, pos);
+			return mob;
+		}
+		catch { throw new Exception("Could not read value of type 'Mob'!"); }
 	}
 
 	public Item ReadItem(bool _moveReadPos = true)

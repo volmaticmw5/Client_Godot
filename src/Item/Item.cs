@@ -57,7 +57,7 @@ public class Item : Button
 
 	public override void _Process(float delta)
 	{
-		setSlotItemIcon();
+		setNewItemStuff();
 		if(dragging)
 			lightUpTargetSlot();
 	}
@@ -124,7 +124,7 @@ public class Item : Button
 		}
 	}
 
-	private void setSlotItemIcon()
+	private void setNewItemStuff()
 	{
 		if (!instanced)
 			return;
@@ -182,6 +182,7 @@ public class Item : Button
 			}
 		}
 
+		PlayerEquip.UpdateExistingItem(window, lastWindow, this);
 		lastPos = position;
 		lastWindow = window;
 	}

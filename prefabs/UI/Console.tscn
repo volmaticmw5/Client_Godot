@@ -3,8 +3,14 @@
 [ext_resource path="res://src/GUI/Console.cs" type="Script" id=1]
 
 [node name="Console" type="Control"]
-anchor_right = 1.0
+anchor_left = 0.5
+anchor_top = 1.0
+anchor_right = 0.5
 anchor_bottom = 1.0
+margin_left = -249.558
+margin_top = -151.223
+margin_right = 250.442
+margin_bottom = -1.22296
 script = ExtResource( 1 )
 __meta__ = {
 "_edit_use_anchors_": false
@@ -14,20 +20,26 @@ ConsoleContentsPath = NodePath("Contents")
 
 [node name="Input" type="LineEdit" parent="."]
 anchor_left = 0.5
+anchor_top = 1.0
 anchor_right = 0.5
-margin_left = -200.512
-margin_top = 540.888
-margin_right = 199.488
-margin_bottom = 564.888
+anchor_bottom = 1.0
+margin_left = -200.398
+margin_top = -24.5316
+margin_right = 199.602
+margin_bottom = -0.531616
 __meta__ = {
 "_edit_use_anchors_": false
 }
 
 [node name="Contents" type="RichTextLabel" parent="."]
-margin_left = 310.458
-margin_top = 433.111
-margin_right = 710.458
-margin_bottom = 539.111
+anchor_left = 0.5
+anchor_top = 1.0
+anchor_right = 0.5
+anchor_bottom = 1.0
+margin_left = -200.689
+margin_top = -130.845
+margin_right = 199.311
+margin_bottom = -24.8451
 __meta__ = {
 "_edit_use_anchors_": false
 }

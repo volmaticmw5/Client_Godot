@@ -41,6 +41,7 @@ public class Console : Control
 		//add to guimanager queue, block player movement
 		inputNode.GrabFocus();
 		typing = true;
+		GUIManager.GUIQueue.Add(GUIS.Console);
 	}
 
 	private void closeConsole()
@@ -56,6 +57,16 @@ public class Console : Control
 	private void addEntryToConsole(string entry)
 	{
 		consoleContents.Text += $"\n{entry}";
+	}
+
+	public static void Close()
+	{
+		instance.closeConsole();
+		for (int i = 0; i < GUIManager.GUIQueue.Count; i++)
+		{
+			if (GUIManager.GUIQueue[i] == GUIS.Inventory)
+				GUIManager.GUIQueue.RemoveAt(i);
+		}
 	}
 
 	private void sendChatEvent(string msg)

@@ -78,6 +78,7 @@ public class Client : Node
 			{(int)ServerPackets.identifyoself, Authentication.IdentifyMyself },
 			{(int)ServerPackets.warpTo, SceneManager.WarpTo },
 			{(int)ServerPackets.playersInMap, Map.HandlePlayersInMap },
+			{(int)ServerPackets.mobsInMap, Map.HandleMobsInMap },
 			{(int)ServerPackets.chatCb, Console.NewConsoleEntry },
 			{(int)ServerPackets.updateInventory, Inventory.Update },
 		};

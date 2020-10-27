@@ -1,0 +1,9 @@
+[gd_scene load_steps=2 format=2]
+
+[ext_resource path="res://src/Tools/TerrainZexporter.cs" type="Script" id=1]
+
+[node name="MapDataExporter" type="RayCast"]
+enabled = true
+cast_to = Vector3( 0, -10000, 0 )
+script = ExtResource( 1 )
+Size = Vector2( 30, 30 )

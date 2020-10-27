@@ -43,9 +43,16 @@
 	<Compile Include="src\Player\PlayerCamera.cs" />
 	<Compile Include="src\Player\PlayerMesh.cs" />
 	<Compile Include="src\Player\PlayerData.cs" />
+	<Compile Include="src\Player\PlayerEquip.cs" />
 	<Compile Include="src\Helpers\MathHelper.cs" />
 	<Compile Include="src\GUI\Debug\DebugTexts.cs" />
 	<Compile Include="src\GUI\Inventory\Inventory.cs" />
+	<Compile Include="src\Tools\TerrainZexporter.cs" />
+	<Compile Include="src\Mob\Mob.cs" />
+	<Compile Include="src\Mob\MobData.cs" />
+	<Compile Include="src\Item\WeaponCollider.cs" />
+	<Compile Include="src\GUIManager.cs" />
+	<Compile Include="src\GUI\MobHUD.cs" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="locale\" />

@@ -16,6 +16,8 @@ public class Inventory : Control
 	[Export] public string inventorySlotPath;
 	[Export] public NodePath EquipSlotWeaponPath;
 	[Export] public NodePath InventoryParentPath;
+	[Export] public NodePath backgroundPath;
+	public TextureRect background;
 	public Control EquipSlotWeapon;
 	public static Control[] inventory_slots;
 	public static Control[] equipable_slots;
@@ -26,6 +28,7 @@ public class Inventory : Control
 
 	public override void _Ready()
 	{
+		background = GetNode<TextureRect>(backgroundPath);
 		itemHolder = GetNode<Control>(itemHolderPath);
 		EquipSlotWeapon = GetNode<Control>(EquipSlotWeaponPath);
 		inventory_slots = new Control[(InventoryHeight * InventoryWidth) + 1];
@@ -86,6 +89,8 @@ public class Inventory : Control
 		newItem.SetItemData(item.iid, item.data, item.count, item.window, item.position);
 		itemHolder.CallDeferred("add_child", newItem);
 		items_in_client.Add(newItem);
+
+		PlayerEquip.UpdateNewItem(item);
 	}
 
 	public static void Update(Packet packet)
@@ -117,6 +122,30 @@ public class Inventory : Control
 			{
 				instance.addItemToInventory(items_from_server[s]);
 			}
+		}
+	}
+
+	public static void _Toggle()
+	{
+		if (Inventory.instance.background.Visible)
+			Inventory._Hide();
+		else
+			Inventory._Show();
+	}
+
+	public static void _Show()
+	{
+		Inventory.instance.background.Visible = true;
+		GUIManager.GUIQueue.Add(GUIS.Inventory);
+	}
+
+	public static void _Hide()
+	{
+		Inventory.instance.background.Visible = false;
+		for (int i = 0; i < GUIManager.GUIQueue.Count; i++)
+		{
+			if (GUIManager.GUIQueue[i] == GUIS.Inventory)
+				GUIManager.GUIQueue.RemoveAt(i);
 		}
 	}
 }

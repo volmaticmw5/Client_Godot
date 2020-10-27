@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -7,10 +7,10 @@ using Godot;
 
 class DebugTexts : RichTextLabel
 {
-    public static string toDraw;
+	public static string toDraw;
 
-    public override void _Process(float delta)
-    {
-        Text = toDraw;
-    }
+	public override void _Process(float delta)
+	{
+		Text = toDraw;
+	}
 }

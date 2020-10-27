@@ -26,9 +26,10 @@ public enum ANIMATION_STATES
 
 public class ANIMATION_SPEEDS
 {
-	public static float WALK_SPEED_MODIFIER = .35f;
-	public static float WALK_ANIM_SPEED = .2f;
-	public static float ATTACK_ANIM_SPEED = .2f;
+	public static float WALK_SPEED_MODIFIER = 3f;
+	public static float WALK_ANIM_SPEED = 1.5f;
+	public static float ATTACK_ANIM_SPEED = 3.7f;
+	public static float MOB_WALK_SPEED_MODIFIER = 2f;
 }
 
 public class Player : KinematicBody
@@ -49,11 +50,11 @@ public class Player : KinematicBody
 	public static Player instance;
 	public static PlayerData myPlayerData { get; private set; }
 	private bool spawned;
-	private bool attacking;
+	public bool attacking;
 	private bool previousAttackCheck;
 	private float currentAnimTimeScale = 1f;
 	private float currentBlendPosition = 1f;
-	private PlayerMesh mesh;
+	public PlayerMesh mesh;
 	private AnimationTree animTree;
 	private Vector2 motion;
 	private Vector3 velocity = new Vector3();
@@ -146,7 +147,7 @@ public class Player : KinematicBody
 	{
 		if(attacking && !previousAttackCheck && spawned)
 		{
-			animTree.Set("parameters/TimeScale/scale", ANIMATION_SPEEDS.ATTACK_ANIM_SPEED * stats.movementSpeed);
+			animTree.Set("parameters/TimeScale/scale", ANIMATION_SPEEDS.ATTACK_ANIM_SPEED * stats.attackSpeed);
 			animTree.Set("parameters/State/current", ANIMATION_STATES.ATTACK);
 			previousAttackCheck = true;
 		}
@@ -265,6 +266,7 @@ public class Player : KinematicBody
 			packet.Write(Client.instance.getCID());
 			packet.Write(Client.instance.getSessionId());
 			packet.Write(myPlayerData);
+			packet.Write(Player.instance.attacking);
 
 			Client.SendTCPData(packet);
 		}

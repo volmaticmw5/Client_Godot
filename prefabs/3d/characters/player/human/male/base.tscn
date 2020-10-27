@@ -61,3 +61,6 @@ animation_path = NodePath("../AnimationTree")
 color = Color( 0.968627, 1, 0, 1 )
 cell_size = 0.27
 radius = 16.0
+
+[node name="WeaponAttatch" type="BoneAttachment" parent="." index="4"]
+bone_name = "one_hand_weapon"
