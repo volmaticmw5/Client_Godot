@@ -108,4 +108,10 @@ public class GUIManager : Node
 			}
 		}
     }
+
+	public static void ShowDamageSignal(Packet packet)
+	{
+		int dmg = packet.ReadInt();
+		GD.Print($"received {dmg} damage");
+	}
 }

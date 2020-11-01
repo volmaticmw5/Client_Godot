@@ -5,15 +5,15 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-class Map
+class Map : Spatial
 {
-	public int id { get; }
-	private static List<OtherPlayer> visiblePlayers = new List<OtherPlayer>();
-	private static List<Mob> visibleMobs = new List<Mob>();
+	public static List<OtherPlayer> visiblePlayers = new List<OtherPlayer>();
+	public static List<Mob> visibleMobs = new List<Mob>();
+	public static Map instance;
 
-	public Map(int _id)
+	public override void _Ready()
 	{
-		this.id = _id;
+		instance = this;
 	}
 
 	public static void HandleMobsInMap(Packet packet)
@@ -23,6 +23,9 @@ class Map
 		List<Mob> mobs = new List<Mob>();
 		for (int i = 0; i < mCount; i++)
 			mobs.Add(packet.ReadMob());
+
+		if (instance == null)
+			return;
 
 		RemoveNoLongerVisibleMobs(mobs.ToArray());
 		foreach (Mob mob in mobs)
@@ -50,9 +53,6 @@ class Map
 			else
 				createOtherPlayer(player);
 		}
-
-		DrawDebugInfo();
-
 
 		// Send the server OUR position , this should be moved somewhere else
 		if(Player.IsReady())
@@ -106,27 +106,11 @@ class Map
 		}
 	}
 
-	private static void DrawDebugInfo()
-	{
-		if (Player.instance != null)
-		{
-			DebugTexts.toDraw = $"({Player.instance.Transform.origin.x},{Player.instance.Transform.origin.y},{Player.instance.Transform.origin.z}) | '{Player.instance.name}'\n";
-			foreach (OtherPlayer player in visiblePlayers)
-			{
-				string animState = "Idle";
-				if (player.attacking)
-					animState = "Attacking";
-
-				DebugTexts.toDraw += $"Player #{player.pid}, '{player.name}' ({player.position.x},{player.position.y},{player.position.z},{animState})\n";
-			}
-		}
-	}
-
 	private static void createOtherPlayer(PlayerData player)
 	{
 		PackedScene nOtherScene = (PackedScene)ResourceLoader.Load($"res://prefabs/OtherPlayer.tscn");
 		OtherPlayer otherPlayer = nOtherScene.Instance() as OtherPlayer;
-		SceneManager.GetInstance().GetTree().Root.GetNodeOrNull("Game").CallDeferred("add_child", otherPlayer);
+		SceneManager.GetInstance().GetTree().Root.GetNodeOrNull(SceneManager.CurrentMapScenePath).CallDeferred("add_child", otherPlayer);
 		otherPlayer.Init(player);
 		visiblePlayers.Add(otherPlayer);
 	}
@@ -175,8 +159,8 @@ class Map
 	{
 		PackedScene nOtherScene = (PackedScene)ResourceLoader.Load($"res://prefabs/3D/mobs/{mob.data.id}.tscn");
 		Mob nMob = nOtherScene.Instance() as Mob;
-		SceneManager.GetInstance().GetTree().Root.GetNodeOrNull("Game").CallDeferred("add_child", nMob);
-		nMob.Init(mob.data, mob.mid, mob.hp, mob.maxHp, mob.position);
+		SceneManager.GetInstance().GetTree().Root.GetNodeOrNull(SceneManager.CurrentMapScenePath).CallDeferred("add_child", nMob);
+		nMob.Init(mob.data, mob.mid, mob.hp, mob.maxHp, mob.position, mob.focus, mob.gid);
 		visibleMobs.Add(nMob);
 	}
 }

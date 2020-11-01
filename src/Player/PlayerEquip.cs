@@ -9,6 +9,11 @@ class PlayerEquip : Player
 {
 	public static bool hasWeaponEquipped = false;
 
+	public static void ResetEquipables()
+	{
+		hasWeaponEquipped = false;
+	}
+
 	public static void EquipWeapon(int vnum)
 	{
 		if (hasWeaponEquipped)

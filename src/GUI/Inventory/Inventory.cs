@@ -7,8 +7,8 @@ using Godot;
 
 public class Inventory : Control
 {
-	private static List<Item> items_from_server = new List<Item>();
-	private static List<Item> items_in_client = new List<Item>();
+	public static List<Item> items_from_server = new List<Item>();
+	public static List<Item> items_in_client = new List<Item>();
 	public static Inventory instance;
 
 	[Export] public int InventoryWidth;
@@ -102,7 +102,7 @@ public class Inventory : Control
 
 		if (Inventory.instance == null)
 			return;
-		
+
 		items_from_server = _items;
 		
 		for (int s = 0; s < items_from_server.Count; s++)

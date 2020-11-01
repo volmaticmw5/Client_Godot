@@ -81,6 +81,8 @@ public class Client : Node
 			{(int)ServerPackets.mobsInMap, Map.HandleMobsInMap },
 			{(int)ServerPackets.chatCb, Console.NewConsoleEntry },
 			{(int)ServerPackets.updateInventory, Inventory.Update },
+			{(int)ServerPackets.damageSignal, GUIManager.ShowDamageSignal },
+			{(int)ServerPackets.reconnectWarp, SceneManager.ReconnectAndWarp },
 		};
 		GD.Print("Initialized client packets.");
 	}

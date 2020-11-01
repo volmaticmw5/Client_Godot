@@ -32,6 +32,9 @@ public class Item : Button
 
 	public void UpdateFromServer(Item server_item)
 	{
+		if (SceneManager.Warping)
+			return;
+
 		this.position = server_item.position;
 		this.window = server_item.window;
 		this.count = server_item.count;

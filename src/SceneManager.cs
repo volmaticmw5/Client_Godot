@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using Godot;
 
 /// <summary>
@@ -11,6 +12,7 @@ public enum ScenePrefabs
 	SelectionGUI,
 	Inventory,
 	Console,
+	LoadingScreen
 }
 
 public enum MapIndexes
@@ -20,16 +22,21 @@ public enum MapIndexes
 
 public class SceneManager : Node
 {
+	public static int WarpingTo = -1;
+	public static int WarpingPid = -1;
+	public static bool Warping = false;
+	public static int WarpingSID = -1;
+
 	private static SceneManager instance;
-	private static Map currentMap;
-	private Dictionary<ScenePrefabs, string[]> Scenes = new Dictionary<ScenePrefabs, string[]>()
+	public static Dictionary<ScenePrefabs, string[]> Scenes = new Dictionary<ScenePrefabs, string[]>()
 	{
 		{ ScenePrefabs.LoginGUI, new [] { "res://prefabs/UI/LoginGUI.tscn", "Game/LoginGUI" } },
 		{ ScenePrefabs.SelectionGUI, new [] {"res://prefabs/UI/SelectionGUI.tscn", "Game/SelectionGUI"} },
 		{ ScenePrefabs.Inventory, new [] {"res://prefabs/UI/Inventory.tscn", "Game/Inventory"} },
 		{ ScenePrefabs.Console, new [] {"res://prefabs/UI/Console.tscn", "Game/Console"} },
+		{ ScenePrefabs.LoadingScreen, new [] {"res://prefabs/UI/LoadingScreen.tscn", "Game/LoadingScreen"} },
 	};
-	private static List<string> mapScenesPaths = new List<string>();
+	public static string CurrentMapScenePath;
 
 	public override void _Ready()
 	{
@@ -44,16 +51,17 @@ public class SceneManager : Node
 	/// <param name="treePath"></param>
 	public static bool TryAddSceneNoDupe(ScenePrefabs scene, string TreePath = "Game")
 	{
-		foreach (ScenePrefabs s in instance.Scenes.Keys)
+		foreach (ScenePrefabs s in Scenes.Keys)
 		{
 			if (scene == s)
 			{
-				string path = instance.Scenes[s][0];
-				var tempInstance = instance.GetTree().Root.GetNodeOrNull(instance.Scenes[s][1]);
+				string path = Scenes[s][0];
+				var tempInstance = instance.GetTree().Root.GetNodeOrNull(Scenes[s][1]);
 				if (tempInstance == null)
 				{
-					PackedScene packed = (PackedScene)ResourceLoader.Load(instance.Scenes[s][0]);
-					instance.GetTree().Root.GetNodeOrNull(TreePath).CallDeferred("add_child", packed.Instance());
+					PackedScene packed = (PackedScene)ResourceLoader.Load(Scenes[s][0]);
+					var scn = packed.Instance();
+					instance.GetTree().Root.GetNodeOrNull(TreePath).CallDeferred("add_child", scn);
 					return true;
 				}
 				else
@@ -72,12 +80,12 @@ public class SceneManager : Node
 	/// <param name="scene"></param>
 	public static bool TryAddScene(ScenePrefabs scene, string TreePath = "Game")
 	{
-		foreach (ScenePrefabs s in instance.Scenes.Keys)
+		foreach (ScenePrefabs s in Scenes.Keys)
 		{
 			if (scene == s)
 			{
-				string path = instance.Scenes[s][0];
-				PackedScene packed = (PackedScene)ResourceLoader.Load(instance.Scenes[s][0]);
+				string path = Scenes[s][0];
+				PackedScene packed = (PackedScene)ResourceLoader.Load(Scenes[s][0]);
 				instance.GetTree().Root.GetNodeOrNull(TreePath).CallDeferred("add_child", packed.Instance());
 				return true;
 			}
@@ -92,7 +100,7 @@ public class SceneManager : Node
 
 	public static void ClearScenes()
 	{
-		foreach (KeyValuePair<ScenePrefabs, string[]> scene in instance.Scenes)
+		foreach (KeyValuePair<ScenePrefabs, string[]> scene in Scenes)
 		{
 			var tempInstance = instance.GetTree().Root.GetNodeOrNull(scene.Value[1].ToString());
 			if (tempInstance == null)
@@ -106,57 +114,108 @@ public class SceneManager : Node
 					try { tempInstance.CallDeferred("free"); } catch { }
 			}
 		}
+
+		Inventory.items_from_server.Clear();
+		Inventory.items_in_client.Clear();
+		Inventory.instance = null;
 	}
 
 	public static void ClearAllMapScenes()
 	{
-		foreach (string ms in mapScenesPaths)
+		var mInstance = instance.GetTree().Root.GetNodeOrNull(CurrentMapScenePath);
+		if(mInstance != null)
 		{
-			var mInstance = instance.GetTree().Root.GetNodeOrNull(ms);
-			if(mInstance != null)
-			{
-				if (mInstance.IsInsideTree())
-					try { mInstance.CallDeferred("queue_free"); } catch { }
-				else
-					try { mInstance.CallDeferred("free"); } catch { }
-			}
+			if (mInstance.IsInsideTree())
+				try { mInstance.CallDeferred("queue_free"); } catch { }
+			else
+				try { mInstance.CallDeferred("free"); } catch { }
 		}
+
+		Map.visibleMobs.Clear();
+		Map.visiblePlayers.Clear();
+		Map.instance = null;
 	}
 
-	public static void LoadMapScene(int mapIndex)
+	public async static Task<int> LoadMapScene(int mapIndex)
 	{
 		string enum_to_str = ((MapIndexes)mapIndex).ToString();
 		PackedScene packed = (PackedScene)ResourceLoader.Load($"res://prefabs/maps/{enum_to_str}.tscn");
-		instance.GetTree().Root.GetNodeOrNull("Game").CallDeferred("add_child", packed.Instance());
-		mapScenesPaths.Add($"Game/{enum_to_str}");
+		var scene = packed.Instance();
+		scene.Name = enum_to_str;
+		instance.GetTree().Root.GetNodeOrNull("Game").AddChild(scene);
+		CurrentMapScenePath = $"Game/{scene.Name}";
 
 		SceneManager.TryAddSceneNoDupe(ScenePrefabs.Inventory);
 		SceneManager.TryAddSceneNoDupe(ScenePrefabs.Console);
+
+		while (instance.GetTree().Root.GetNodeOrNull(CurrentMapScenePath) == null)
+		{
+			await Task.Delay(100);
+		}
+		return 0;
 	}
 
 	public static void ToLogin()
 	{
+		if (Warping)
+			return;
+
 		GD.Print("Connection lost, back to login...");
 		ClearScenes();
 		ClearAllMapScenes();
 		TryAddSceneNoDupe(ScenePrefabs.LoginGUI, "Game");
 	}
 
-	public static void WarpTo(Packet packet)
+	public async static void WarpTo(Packet packet)
 	{
 		PlayerData pData = packet.ReadPlayerData();
 		Client.instance.setSessionId(pData.sid);
-		currentMap = new Map(pData.map);
-
-		SceneManager.ClearScenes();
-		SceneManager.ClearAllMapScenes();
-		SceneManager.LoadMapScene(pData.map);
-
+		GD.Print("Clearing scenes and maps");
+		ClearScenes();
+		ClearAllMapScenes();
+		GD.Print("Loading map scene");
+		await LoadMapScene(pData.map);
+		GD.Print("Loading new player instance");
 		PackedScene playerPrefab = (PackedScene)ResourceLoader.Load($"res://prefabs/Player.tscn");
 		Player playerInstance = (Player)playerPrefab.Instance();
-		instance.GetTree().Root.GetNodeOrNull("Game").CallDeferred("add_child", playerInstance);
+		instance.GetTree().Root.GetNode(CurrentMapScenePath).CallDeferred("add_child", playerInstance);
+		GD.Print("Player instance loaded");
 		playerInstance.SpawnAt(pData);
-
 		GD.Print($"Go to map #{pData.map} at pos {pData.pos.X},{pData.pos.Y},{pData.pos.Z} with char name of {pData.name}");
+
+		if (Warping)
+		{
+			Warping = false;
+			WarpingPid = -1;
+			WarpingSID = -1;
+			WarpingTo = -1;
+		}
+	}
+
+	// Connect to the authentication server and tell it to get the target game server for this map
+	public static async void ReconnectAndWarp(Packet packet)
+	{
+		int map = packet.ReadInt();
+
+		SceneManager.ClearScenes();
+		TryAddSceneNoDupe(ScenePrefabs.LoadingScreen);
+		SceneManager.ClearAllMapScenes();
+		await Task.Delay(500);
+		Warping = true;
+		WarpingTo = map;
+		WarpingPid = Player.myPlayerData.pid;
+		WarpingSID = Client.instance.getSessionId();
+		await Task.Delay(500);
+		Client.instance.Disconnect();
+		await Task.Delay(500);
+		Client.instance.ConnectToAuthenticationServer();
+	}
+
+	public static bool IsWarping()
+	{
+		if (Warping && WarpingPid > 0 && WarpingTo > 0 && WarpingSID > 0)
+			return true;
+
+		return false;
 	}
 }

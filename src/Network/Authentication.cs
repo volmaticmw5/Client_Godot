@@ -35,38 +35,49 @@ class Authentication
 		}
 	}
 
-	/// <summary>
-	/// The server is requesting us to send the authentication data, answer back accordingly
-	/// </summary>
+	// Send authentication data to the server
 	public static void RequestAuth(Packet packet)
 	{
 		int id = packet.ReadInt();
 		if (id == Client.instance.getCID())
 		{
-			// Send authentication data to the server
-			using (Packet newPacket = new Packet((int)ClientPackets.authenticate))
+			if(SceneManager.IsWarping())
 			{
-				newPacket.Write(id);
-				newPacket.Write(LoginManager.CurrentUsername); //user
-				newPacket.Write(LoginManager.CurrentPassword); //password
-				Client.SendTCPData(newPacket);
+				using (Packet newPacket = new Packet((int)ClientPackets.getTargetGameServerForWarp))
+				{
+					newPacket.Write(id);
+					newPacket.Write(SceneManager.WarpingSID);
+					newPacket.Write(SceneManager.WarpingPid);
+					newPacket.Write(SceneManager.WarpingTo);
+					Client.SendTCPData(newPacket);
+				}
+			}
+			else
+			{
+				using (Packet newPacket = new Packet((int)ClientPackets.authenticate))
+				{
+					newPacket.Write(id);
+					newPacket.Write(LoginManager.CurrentUsername);
+					newPacket.Write(LoginManager.CurrentPassword);
+					Client.SendTCPData(newPacket);
+				}
 			}
 		}
 	}
 
-	internal static void AuthFailed(Packet packet)
+	public static void AuthFailed(Packet packet)
 	{
 		GD.Print("Failed to authenticate!");
 		Client.instance.Disconnect(2);
 	}
 
-	internal static void AlreadyConnected(Packet packet)
+	public static void AlreadyConnected(Packet packet)
 	{
 		GD.Print("This account is already connected! Please wait a few seconds!");
 		Client.instance.Disconnect(9);
 	}
 
-	internal static void CharSelectionCB(Packet packet)
+	public static void CharSelectionCB(Packet packet)
 	{
 		List<CharacterSelectionEntry> characters = new List<CharacterSelectionEntry>();
 		int id = packet.ReadInt();
@@ -83,8 +94,9 @@ class Authentication
 		CharSelection.SetCharacters(characters.ToArray());
 	}
 
-	internal static void GoToGameServer(Packet packet)
+	public static void GoToGameServer(Packet packet)
 	{
+		GD.Print("Connecting to game server...");
 		int cid = packet.ReadInt();
 		int session = packet.ReadInt();
 		string addr = packet.ReadString();
@@ -92,13 +104,11 @@ class Authentication
 
 		if(Client.instance.getSessionId() == session)
 		{
-			// Disconnect from auth server
-			// TODO :: Dont go back to login screen, we are WAITING for the game server to request our session id!
 			Client.instance.Connect(addr, port);
 		}
 		else
 		{
-			Client.instance.Disconnect(4); // Do go back to login, session missmatch
+			Client.instance.Disconnect(4);
 		}
 	}
 

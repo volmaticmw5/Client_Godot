@@ -55,7 +55,7 @@ public class Player : KinematicBody
 	private float currentAnimTimeScale = 1f;
 	private float currentBlendPosition = 1f;
 	public PlayerMesh mesh;
-	private AnimationTree animTree;
+	public AnimationTree animTree;
 	private Vector2 motion;
 	private Vector3 velocity = new Vector3();
 	private Transform orientation;
@@ -76,7 +76,7 @@ public class Player : KinematicBody
 		camera = cameraRot.GetNode<Spatial>("Camera");
 		playerCamera = new PlayerCamera();
 		animTree = mesh.FindNode("AnimationTree", true, false) as AnimationTree;
-
+		PlayerEquip.ResetEquipables();
 		using (Packet packet = new Packet((int)ClientPackets.playerInstancedSignal))
 		{
 			packet.Write(Client.instance.getCID());
@@ -261,6 +261,9 @@ public class Player : KinematicBody
 
 	public static void Broadcast()
 	{
+		if (SceneManager.Warping)
+			return;
+
 		using (Packet packet = new Packet((int)ClientPackets.playerBroadcast))
 		{
 			packet.Write(Client.instance.getCID());

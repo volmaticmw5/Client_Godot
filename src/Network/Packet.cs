@@ -17,6 +17,8 @@ public enum ServerPackets
 	mobsInMap,
 	chatCb,
 	updateInventory,
+	damageSignal,
+	reconnectWarp
 }
 
 public enum ClientPackets
@@ -30,7 +32,8 @@ public enum ClientPackets
 	chatMsg,
 	itemChangePosition,
 	itemUse,
-	weaponHit
+	weaponHit,
+	getTargetGameServerForWarp
 }
 
 public class Packet : IDisposable
@@ -221,6 +224,12 @@ public class Packet : IDisposable
 		Write(data.stats.pAttack);
 		Write(data.stats.mAttack);
 		Write(data.attacking);
+		Write(data.hp);
+		Write(data.mana);
+		Write(data.stats.maxHp);
+		Write(data.stats.maxMana);
+		Write(data.stats.pDefense);
+		Write(data.stats.mDefense);
 	}
 	#endregion
 
@@ -470,7 +479,13 @@ public class Packet : IDisposable
 			float mAttack = ReadFloat();
 			PlayerStats stats = new PlayerStats(movSpeed, attSpeed, pAttack, mAttack);
 			bool attacking = ReadBool();
-			return new PlayerData(pid, aid, sid, name, level, map, sex, race, new System.Numerics.Vector3(x, y, z), heading, stats, attacking);
+			float hp = ReadFloat();
+			float mana = ReadFloat();
+			float maxHp = ReadFloat();
+			float maxMana = ReadFloat();
+			float pDef = ReadFloat();
+			float mDef = ReadFloat();
+			return new PlayerData(pid, aid, sid, name, level, map, sex, race, new System.Numerics.Vector3(x, y, z), heading, stats, attacking, maxHp, maxMana, hp, mana, pDef, mDef);
 		}
 		catch
 		{
@@ -487,8 +502,10 @@ public class Packet : IDisposable
 			float hp = ReadFloat();
 			float maxHp = ReadFloat();
 			Vector3 pos = ReadVector3();
+			int focus = ReadInt();
+			int gid = ReadInt();
 			Mob mob = new Mob();
-			mob.Init(Config.Mobs[id], mid, hp, maxHp, pos);
+			mob.Init(Config.Mobs[id], mid, hp, maxHp, pos, focus, gid);
 			return mob;
 		}
 		catch { throw new Exception("Could not read value of type 'Mob'!"); }

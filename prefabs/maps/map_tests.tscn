@@ -1,12 +1,14 @@
-[gd_scene load_steps=6 format=2]
+[gd_scene load_steps=7 format=2]
 
 [ext_resource path="res://addons/zylann.hterrain/hterrain.gd" type="Script" id=1]
 [ext_resource path="res://prefabs/maps/map_tests/data.hterrain" type="Resource" id=2]
 [ext_resource path="res://textures/UV_Grid_Lrg.jpg" type="Texture" id=3]
 [ext_resource path="res://prefabs/UI/DebugTexts.tscn" type="PackedScene" id=4]
 [ext_resource path="res://src/Tools/MapDataExporter.tscn" type="PackedScene" id=5]
+[ext_resource path="res://src/Map/Map.cs" type="Script" id=6]
 
 [node name="map_tests" type="Spatial"]
+script = ExtResource( 6 )
 
 [node name="HTerrain" type="Spatial" parent="."]
 script = ExtResource( 1 )

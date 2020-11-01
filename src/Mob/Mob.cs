@@ -14,15 +14,19 @@ public class Mob : KinematicBody
 	public int mid;
 	public float hp;
 	public float maxHp;
+	public int focus; // please remove this var on release, they're only here in order to debug
+	public int gid; // please remove this var on release, they're only here in order to debug
 	private bool instanced;
 
-	public void Init(MobData _data, int _mid, float _hp, float _maxHp, Vector3 _pos)
+	public void Init(MobData _data, int _mid, float _hp, float _maxHp, Vector3 _pos, int _focus, int _gid)
 	{
 		this.data = _data;
 		this.mid = _mid;
 		this.position = _pos;
 		this.maxHp = _maxHp;
 		this.hp = _hp;
+		this.focus = _focus;
+		this.gid = _gid;
 	}
 
 	public override void _Ready()
@@ -40,14 +44,11 @@ public class Mob : KinematicBody
 		}
 		else
 		{
-			t.origin = new Vector3(
-				Mathf.Lerp(t.origin.x, position.x, (float)(data.movementSpeed * ANIMATION_SPEEDS.MOB_WALK_SPEED_MODIFIER) * delta),
-				Mathf.Lerp(t.origin.y, position.y, (float)(data.movementSpeed * ANIMATION_SPEEDS.MOB_WALK_SPEED_MODIFIER) * delta),
-				Mathf.Lerp(t.origin.z, position.z, (float)(data.movementSpeed * ANIMATION_SPEEDS.MOB_WALK_SPEED_MODIFIER) * delta)
-			);
-			Transform = t;
+			var velocity = Transform.origin.DirectionTo(position) * data.movementSpeed * ANIMATION_SPEEDS.MOB_WALK_SPEED_MODIFIER * delta;
+			MoveAndCollide(velocity);
+			//LookAt(position, Vector3.Left);
 		}
-	   
+
 		lastPos = t.origin;
 	}
 
@@ -58,23 +59,14 @@ public class Mob : KinematicBody
 
 		this.position = mob.position;
 		this.hp = mob.hp;
+		this.focus = mob.focus;
+		this.gid = mob.gid;
 	}
 
 	public void hideHud()
 	{
 		GUIManager.HideMobHUDForMob(this.mid);
 	}
-
-	/*public override void _Input(InputEvent @event)
-	{
-		if(@event is InputEventMouseButton b)
-		{
-			if (b.IsPressed())
-				return;
-			if (b.ButtonIndex == 2)
-				GUIManager.ShowMobHUD(this);
-		}
-	}*/
 
 	private void onClick(object camera, object @event, Vector3 click_position, Vector3 click_normal, int shape_idx)
 	{

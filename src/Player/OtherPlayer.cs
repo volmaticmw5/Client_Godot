@@ -21,6 +21,10 @@ public class OtherPlayer : KinematicBody
 	public PlayerStats stats { get; private set; }
 	public int heading { get; private set; }
 	public bool attacking { get; private set; }
+	public float maxHp { get; private set; }
+	public float maxMana { get; private set; }
+	public float hp { get; private set; }
+	public float mana { get; private set; }
 
 	private float currentAnimTimeScale = 1f;
 	private float currentBlendPosition = 1f;
