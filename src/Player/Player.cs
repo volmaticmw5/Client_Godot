@@ -180,7 +180,6 @@ public class Player : KinematicBody
 		else
 		{
 			ApplyRotationBasedOnMovement(cam_x, cam_z, delta);
-			return; 
 		}
 
 		// Movement
@@ -199,7 +198,8 @@ public class Player : KinematicBody
 		currentBlendPosition = Mathf.Clamp(currentBlendPosition, -1f, 1f);
 		velocity += Gravity * delta;
 		velocity *= (float)(stats.movementSpeed * ANIMATION_SPEEDS.WALK_SPEED_MODIFIER); // Mov speed
-		velocity = MoveAndSlide(velocity, new Vector3(0, 1, 0), true, 1);
+		if(!attacking)
+			velocity = MoveAndSlide(velocity, new Vector3(0, 1, 0), true, 1);
 		velocity = Vector3.Zero;
 
 		orientation = orientation.Orthonormalized();

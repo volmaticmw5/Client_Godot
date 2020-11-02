@@ -283,6 +283,10 @@ public class Item : Button
 
 	private void requestItemMove(WINDOW target_window, int newPos)
 	{
+		PlayerEquip.UpdatePlayerEquip(this);
+		if (PlayerEquip.hasWeaponEquipped && target_window != WINDOW.EQUIPABLES && window == WINDOW.EQUIPABLES && data.type == ITEM_TYPES.WEAPON)
+			PlayerEquip.DequipWeapon();
+
 		using (Packet packet = new Packet((int)ClientPackets.itemChangePosition))
 		{
 			packet.Write(Client.instance.getCID());
@@ -296,7 +300,7 @@ public class Item : Button
 
 	private void requestItemUsage(int pos)
 	{
-		GD.Print($"request item usage at window {window.ToString()} and position {pos}");
+		PlayerEquip.UpdatePlayerEquip(this);
 		using (Packet packet = new Packet((int)ClientPackets.itemUse))
 		{
 			packet.Write(Client.instance.getCID());

@@ -14,6 +14,12 @@ class PlayerEquip : Player
 		hasWeaponEquipped = false;
 	}
 
+	public static void UpdatePlayerEquip(Item item)
+	{
+		if (hasWeaponEquipped && item.window == Item.WINDOW.EQUIPABLES && item.data.type == ITEM_TYPES.WEAPON)
+			PlayerEquip.DequipWeapon();
+	}
+
 	public static void EquipWeapon(int vnum)
 	{
 		if (hasWeaponEquipped)
@@ -42,7 +48,5 @@ class PlayerEquip : Player
 	{
 		if (window == Item.WINDOW.EQUIPABLES && item.data.type == ITEM_TYPES.WEAPON)
 			PlayerEquip.EquipWeapon(item.data.vnum);
-		if (lastWindow == Item.WINDOW.EQUIPABLES && item.data.type == ITEM_TYPES.WEAPON)
-			PlayerEquip.DequipWeapon();
 	}
 }
