@@ -7,10 +7,8 @@ using Godot;
 
 public class OtherPlayer : KinematicBody
 {
-	private Vector3 FallVector = new Vector3(0.0f, -20.0f, 0.0f);
 	private PlayerMesh mesh;
 	private Transform orientation;
-	private Vector3 lastPos;
 
 	public int pid { get; private set; }
 	public int level { get; private set; }
@@ -20,7 +18,7 @@ public class OtherPlayer : KinematicBody
 	public Vector3 position { get; private set; }
 	public PlayerStats stats { get; private set; }
 	public int heading { get; private set; }
-	public bool attacking { get; private set; }
+	public ANIMATION_STATES animation_state { get; private set; }
 	public float maxHp { get; private set; }
 	public float maxMana { get; private set; }
 	public float hp { get; private set; }
@@ -28,7 +26,7 @@ public class OtherPlayer : KinematicBody
 
 	private float currentAnimTimeScale = 1f;
 	private float currentBlendPosition = 1f;
-	private AnimationTree animTree;
+	public AnimationTree animTree;
 
 	public void Init(PlayerData data)
 	{
@@ -40,7 +38,7 @@ public class OtherPlayer : KinematicBody
 		this.sex = (PLAYER_SEXES)data.sex;
 		this.stats = data.stats;
 		this.heading = data.heading;
-		this.attacking = data.attacking;
+		this.animation_state = data.animation_state;
 		Spawn();
 	}
 
@@ -49,7 +47,7 @@ public class OtherPlayer : KinematicBody
 		this.position = new Vector3(data.pos.X, data.pos.Y, data.pos.Z);
 		this.level = data.level;
 		this.heading = data.heading;
-		this.attacking = data.attacking;
+		this.animation_state = data.animation_state;
 	}
 
 	public void Spawn()
@@ -73,43 +71,62 @@ public class OtherPlayer : KinematicBody
 	public override void _Process(float delta)
 	{
 		UpdateGamePosition(delta);
+	}
 
-		if(attacking)
+	private void setAnimState()
+	{
+		if (animation_state == ANIMATION_STATES.FALLING)
 		{
-			animTree.Set("parameters/TimeScale/scale", ANIMATION_SPEEDS.ATTACK_ANIM_SPEED * stats.attackSpeed);
-			animTree.Set("parameters/State/current", ANIMATION_STATES.ATTACK);
-		}
+			if((ANIMATION_STATES)animTree.Get("parameters/State/current") != ANIMATION_STATES.WALK)
+				animTree.Set("parameters/Jumping/active", true);
 
-		lastPos = Transform.origin;
+			animTree.Set("parameters/State/current", ANIMATION_STATES.FALLING);
+		}
+		else
+		{
+			if ((ANIMATION_STATES)animTree.Get("parameters/State/current") == ANIMATION_STATES.FALLING)
+				animTree.Set("parameters/HitGround/active", true);
+
+			if (animation_state == ANIMATION_STATES.ATTACK)
+				animTree.Set("parameters/State/current", ANIMATION_STATES.ATTACK);
+			else
+				animTree.Set("parameters/State/current", ANIMATION_STATES.WALK);
+		}
+	}
+
+	private void setTimeScale()
+	{
+		if (animation_state == ANIMATION_STATES.WALK)
+			currentAnimTimeScale = stats.movementSpeed * ANIMATION_SPEEDS.WALK_ANIM_SPEED;
+		else if (animation_state == ANIMATION_STATES.ATTACK)
+			currentAnimTimeScale = ANIMATION_SPEEDS.ATTACK_ANIM_SPEED * stats.attackSpeed;
+		else if (animation_state == ANIMATION_STATES.FALLING)
+			currentAnimTimeScale = ANIMATION_SPEEDS.PLAYER_FALLING_ANIM_SPEED;
 	}
 
 	private void UpdateGamePosition(float delta)
 	{
-		SetRotationDegrees(new Vector3(mesh.RotationDegrees.x, heading, mesh.RotationDegrees.z));
-
-		if (!attacking)
-		{
-			animTree.Set("parameters/State/current", ANIMATION_STATES.WALK);
-		}
-
-		if (MathHelper.Distance(new System.Numerics.Vector3(lastPos.x, lastPos.y, lastPos.z), new System.Numerics.Vector3(position.x, position.y, position.z)) <= 0.5f)
-		{
-			currentAnimTimeScale = 1f;
-			currentBlendPosition -= .1f;
-			
-			animTree.Set("parameters/Walk/blend_position", currentBlendPosition);
-			animTree.Set("parameters/TimeScale/scale", currentAnimTimeScale);
-			return;
-		}
-
-		var velocity = FallVector;
 		Transform t = Transform;
+		mesh.RotationDegrees = new Vector3(mesh.RotationDegrees.x, Mathf.Lerp(mesh.RotationDegrees.y, heading, 50f * delta), mesh.RotationDegrees.z);
+		setAnimState();
 
-		currentAnimTimeScale = stats.movementSpeed * ANIMATION_SPEEDS.WALK_ANIM_SPEED;
-		currentBlendPosition += .1f;
-		currentBlendPosition = Mathf.Clamp(currentBlendPosition, -1f, 1f);
-		velocity += mesh.Transform.basis.z;
-
+		if (MathHelper.Distance(new System.Numerics.Vector3(t.origin.x, t.origin.y, t.origin.z), new System.Numerics.Vector3(position.x, position.y, position.z)) <= 0.2f)
+		{
+			// Return from moving to idle position
+			if (animation_state != ANIMATION_STATES.ATTACK && animation_state != ANIMATION_STATES.FALLING) 
+			{
+				currentAnimTimeScale = 1f;
+				currentBlendPosition -= .1f;
+				currentBlendPosition = Mathf.Clamp(currentBlendPosition, -1f, 1f);
+			}
+		}
+		else
+		{
+			setTimeScale();
+			currentBlendPosition += .1f;
+			currentBlendPosition = Mathf.Clamp(currentBlendPosition, -1f, 1f);
+		}
+		
 		t.origin = new Vector3(
 			Mathf.Lerp(t.origin.x, position.x, (float)(stats.movementSpeed * ANIMATION_SPEEDS.WALK_SPEED_MODIFIER) * delta),
 			Mathf.Lerp(t.origin.y, position.y, (float)(stats.movementSpeed * ANIMATION_SPEEDS.WALK_SPEED_MODIFIER) * delta),
@@ -119,7 +136,5 @@ public class OtherPlayer : KinematicBody
 
 		animTree.Set("parameters/Walk/blend_position", currentBlendPosition);
 		animTree.Set("parameters/TimeScale/scale", currentAnimTimeScale);
-
-		MoveAndSlide(velocity, Vector3.Up, true);
 	}
 }

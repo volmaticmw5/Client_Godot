@@ -3,6 +3,7 @@
 [ext_resource path="res://src/Player/OtherPlayer.cs" type="Script" id=1]
 
 [sub_resource type="CapsuleShape" id=1]
+height = 0.999763
 
 [node name="OtherPlayer" type="KinematicBody"]
 script = ExtResource( 1 )

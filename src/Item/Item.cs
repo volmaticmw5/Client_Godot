@@ -63,6 +63,32 @@ public class Item : Button
 		setNewItemStuff();
 		if(dragging)
 			lightUpTargetSlot();
+
+		updateVisibility();
+	}
+
+	private void updateVisibility()
+	{
+		switch(window)
+		{
+			case WINDOW.INVENTORY:
+				if (Inventory.instance.background.Visible)
+					Visible = true;
+				else
+					Visible = false;
+				break;
+			case WINDOW.EQUIPABLES:
+				if (!CharacterWindow.instance.Visible)
+					Visible = false;
+				else if (CharacterWindow.instance.Visible && CharacterWindow.instance.CharacterSubMenu.Visible)
+					Visible = true;
+				else if (CharacterWindow.instance.Visible && !CharacterWindow.instance.CharacterSubMenu.Visible)
+					Visible = false;
+				break;
+			default:
+				Visible = true;
+				break;
+		}
 	}
 
 	private void lightUpTargetSlot()
@@ -80,11 +106,6 @@ public class Item : Button
 		int slotPos = getSlotPositionUnderMouse();
 		clearSlotModulates();
 		Inventory.inventory_slots[slotPos].Modulate = new Color(1f, 0.8f, 1f);
-		if(data.size > 1 && slotPos + Inventory.instance.InventoryWidth < Inventory.inventory_slots.Length)
-		{
-			if (Inventory.inventory_slots[slotPos + Inventory.instance.InventoryWidth] != null)
-				Inventory.inventory_slots[slotPos + Inventory.instance.InventoryWidth].Modulate = new Color(1f, 0.8f, 1f);
-		}
 	}
 
 	private void clearSlotModulates()
@@ -137,25 +158,23 @@ public class Item : Button
 		iconCount = GetNode<Label>(iconCountPath);
 		icon.Texture = ResourceLoader.Load<Texture>($"res://prefabs/UI/icons/items/{data.vnum}.png");
 		setPosition();
-		setSize();
 		UpdateItemCountLabel();
 		instanced = false;
-	}
-
-	private void setSize()
-	{
-		if (data.size == 1)
-			SetSize(new Vector2(25f, 25f));
-		else
-			SetSize(new Vector2(25f, 50f));
 	}
 
 	private void setPosition()
 	{
 		if (window == WINDOW.INVENTORY)
+		{
 			RectGlobalPosition = Inventory.inventory_slots[position].RectGlobalPosition;
+		}
 		else if (window == WINDOW.EQUIPABLES)
-			RectGlobalPosition = Inventory.equipable_slots[position].RectGlobalPosition;
+		{
+			if (data.type == ITEM_TYPES.WEAPON)
+			{
+				RectGlobalPosition = CharacterWindow.WeaponSlot.RectGlobalPosition;
+			}
+		}
 	}
 
 	private void UpdateItemCountLabel()
@@ -174,16 +193,7 @@ public class Item : Button
 	{
 		Name = "icon_" + data.vnum + "_" + position;
 		if (lastPos != position || lastWindow != window)
-		{
-			if (window == WINDOW.INVENTORY)
-			{
-				RectGlobalPosition = Inventory.inventory_slots[position].RectGlobalPosition;
-			}
-			else if (window == WINDOW.EQUIPABLES)
-			{
-				RectGlobalPosition = Inventory.equipable_slots[position].RectGlobalPosition;
-			}
-		}
+			setPosition();
 
 		PlayerEquip.UpdateExistingItem(window, lastWindow, this);
 		lastPos = position;
@@ -205,18 +215,6 @@ public class Item : Button
 			}
 		}
 		return -1; 
-	}
-
-	private void returnItemToOriginalPosition()
-	{
-		if(window == WINDOW.INVENTORY)
-		{
-			RectGlobalPosition = Inventory.inventory_slots[position].RectGlobalPosition;
-		}
-		else
-		{
-			RectGlobalPosition = Inventory.equipable_slots[position].RectGlobalPosition;
-		}
 	}
 
 	private WINDOW getTargetWindow()
@@ -260,7 +258,7 @@ public class Item : Button
 		Inventory.draggingItem = false;
 		dragging = false;
 		dragPosition = Vector2.Zero;
-		returnItemToOriginalPosition();
+		setPosition();
 	}
 
 	public void EndDrag()

@@ -53,6 +53,7 @@
 	<Compile Include="src\Item\WeaponCollider.cs" />
 	<Compile Include="src\GUIManager.cs" />
 	<Compile Include="src\GUI\MobHUD.cs" />
+	<Compile Include="src\GUI\CharacterWindow.cs" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="locale\" />

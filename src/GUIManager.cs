@@ -9,7 +9,8 @@ public enum GUIS
 {
     Inventory,
     MobHud,
-    Console
+    Console,
+	CharacterWindow
 }
 
 public class GUIManager : Node
@@ -18,7 +19,8 @@ public class GUIManager : Node
     private static GUIManager instance;
     private MobHUD currentMobHud;
 
-    public static bool isMouseOverGUI_INVENTORY;
+	public static bool isInventoryOpened;
+	public static bool isMouseOverGUI_INVENTORY;
     public static bool isMouseOverGUI_ESCMENU;
     public static bool isMouseOverGUI_SYSOPT;
     public static bool isMouseOverGUI_JOURNAL;
@@ -48,6 +50,9 @@ public class GUIManager : Node
 						case GUIS.MobHud:
 							HideMobHUD();
 							break;
+						case GUIS.CharacterWindow:
+							CharacterWindow._Hide();
+							break;
 					}
 				}
 				else
@@ -59,6 +64,10 @@ public class GUIManager : Node
 			if (eventKey.Pressed && eventKey.Scancode == Keybinds.KEYBIND_INVENTORY)
 			{
 				Inventory._Toggle();
+			}
+			if (eventKey.Pressed && eventKey.Scancode == Keybinds.KEYBIND_CHARACTER)
+			{
+				CharacterWindow._Toggle();
 			}
 		}
 	}

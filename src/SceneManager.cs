@@ -12,7 +12,9 @@ public enum ScenePrefabs
 	SelectionGUI,
 	Inventory,
 	Console,
-	LoadingScreen
+	CharWindow,
+	LoadingScreen,
+	ItemHolder
 }
 
 public enum MapIndexes
@@ -34,7 +36,9 @@ public class SceneManager : Node
 		{ ScenePrefabs.SelectionGUI, new [] {"res://prefabs/UI/SelectionGUI.tscn", "Game/SelectionGUI"} },
 		{ ScenePrefabs.Inventory, new [] {"res://prefabs/UI/Inventory.tscn", "Game/Inventory"} },
 		{ ScenePrefabs.Console, new [] {"res://prefabs/UI/Console.tscn", "Game/Console"} },
+		{ ScenePrefabs.CharWindow, new [] { "res://prefabs/UI/CharWindow.tscn", "Game/CharWindow"} },
 		{ ScenePrefabs.LoadingScreen, new [] {"res://prefabs/UI/LoadingScreen.tscn", "Game/LoadingScreen"} },
+		{ ScenePrefabs.ItemHolder, new [] {"res://prefabs/UI/ItemHolder.tscn", "Game/ItemHolder"} },
 	};
 	public static string CurrentMapScenePath;
 
@@ -118,6 +122,7 @@ public class SceneManager : Node
 		Inventory.items_from_server.Clear();
 		Inventory.items_in_client.Clear();
 		Inventory.instance = null;
+		CharacterWindow.instance = null;
 	}
 
 	public static void ClearAllMapScenes()
@@ -147,6 +152,8 @@ public class SceneManager : Node
 
 		SceneManager.TryAddSceneNoDupe(ScenePrefabs.Inventory);
 		SceneManager.TryAddSceneNoDupe(ScenePrefabs.Console);
+		SceneManager.TryAddSceneNoDupe(ScenePrefabs.CharWindow);
+		SceneManager.TryAddSceneNoDupe(ScenePrefabs.ItemHolder);
 
 		while (instance.GetTree().Root.GetNodeOrNull(CurrentMapScenePath) == null)
 		{
@@ -203,7 +210,7 @@ public class SceneManager : Node
 		await Task.Delay(500);
 		Warping = true;
 		WarpingTo = map;
-		WarpingPid = Player.myPlayerData.pid;
+		WarpingPid = Player.data.pid;
 		WarpingSID = Client.instance.getSessionId();
 		await Task.Delay(500);
 		Client.instance.Disconnect();

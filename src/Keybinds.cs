@@ -13,4 +13,6 @@ public class Keybinds
 	public static int KEYBIND_ATTACK = (int)Godot.KeyList.Space;
 	public static int KEYBIND_ACCEPT = (int)Godot.KeyList.Enter;
 	public static int KEYBIND_INVENTORY = (int)Godot.KeyList.I;
+	public static int KEYBIND_CHARACTER = (int)Godot.KeyList.C;
+	public static int KEYBIND_JUMP = (int)Godot.KeyList.Shift;
 }

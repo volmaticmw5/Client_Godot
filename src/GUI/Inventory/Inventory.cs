@@ -14,28 +14,21 @@ public class Inventory : Control
 	[Export] public int InventoryWidth;
 	[Export] public int InventoryHeight;
 	[Export] public string inventorySlotPath;
-	[Export] public NodePath EquipSlotWeaponPath;
 	[Export] public NodePath InventoryParentPath;
 	[Export] public NodePath backgroundPath;
+	[Export] public string ItemHolderPath;
 	public TextureRect background;
-	public Control EquipSlotWeapon;
 	public static Control[] inventory_slots;
-	public static Control[] equipable_slots;
 	public static bool draggingItem = false;
 	public GridContainer inventory_parent;
-	[Export] public NodePath itemHolderPath;
-	public Control itemHolder;
 
 	public override void _Ready()
 	{
 		background = GetNode<TextureRect>(backgroundPath);
-		itemHolder = GetNode<Control>(itemHolderPath);
-		EquipSlotWeapon = GetNode<Control>(EquipSlotWeaponPath);
 		inventory_slots = new Control[(InventoryHeight * InventoryWidth) + 1];
-		equipable_slots = new Control[2];
 		buildInventorySlots();
-		buildEquipableSlots();
 		instance = this;
+		_Hide();
 	}
 
 	private void buildInventorySlots()
@@ -62,32 +55,12 @@ public class Inventory : Control
 		}
 	}
 
-	private void buildEquipableSlots()
-	{
-		PackedScene slotPs = (PackedScene)ResourceLoader.Load(inventorySlotPath);
-		int pos = 1;
-
-		// Weapon slots
-		for (int i = 0; i < 2; i++)
-		{
-			Control slot = slotPs.Instance() as Control;
-			slot.Name = $"slot_weapon_{i}";
-			slot.RectPosition = new Vector2(0f, 25f * i);
-			EquipSlotWeapon.CallDeferred("add_child", slot);
-			if(i == 0)
-				equipable_slots[pos] = slot;
-
-			pos++;
-		}
-
-	}
-
 	public void addItemToInventory(Item item)
 	{
-		PackedScene itemPS = (PackedScene)ResourceLoader.Load($"res://prefabs/UI/Item_{item.data.size}_slot.tscn");
+		PackedScene itemPS = (PackedScene)ResourceLoader.Load($"res://prefabs/UI/Item_slot.tscn");
 		Item newItem = itemPS.Instance() as Item;
 		newItem.SetItemData(item.iid, item.data, item.count, item.window, item.position);
-		itemHolder.CallDeferred("add_child", newItem);
+		GetTree().Root.GetNode<CanvasLayer>(ItemHolderPath).CallDeferred("add_child", newItem);
 		items_in_client.Add(newItem);
 
 		PlayerEquip.UpdateNewItem(item);

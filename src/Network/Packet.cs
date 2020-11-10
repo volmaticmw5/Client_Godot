@@ -17,6 +17,7 @@ public enum ServerPackets
 	mobsInMap,
 	chatCb,
 	updateInventory,
+	updatePlayer,
 	damageSignal,
 	reconnectWarp
 }
@@ -208,8 +209,6 @@ public class Packet : IDisposable
 	public void Write(PlayerData data)
 	{
 		Write(data.pid);
-		Write(data.aid);
-		Write(data.sid);
 		Write(data.name);
 		Write(data.level);
 		Write(data.map);
@@ -221,15 +220,11 @@ public class Packet : IDisposable
 		Write(data.heading);
 		Write(data.stats.attackSpeed);
 		Write(data.stats.movementSpeed);
-		Write(data.stats.pAttack);
-		Write(data.stats.mAttack);
-		Write(data.attacking);
+		Write((int)data.animation_state);
 		Write(data.hp);
 		Write(data.mana);
-		Write(data.stats.maxHp);
-		Write(data.stats.maxMana);
-		Write(data.stats.pDefense);
-		Write(data.stats.mDefense);
+		Write(data.maxHp);
+		Write(data.maxMana);
 	}
 	#endregion
 
@@ -466,6 +461,11 @@ public class Packet : IDisposable
 			int sid = ReadInt();
 			string name = ReadString();
 			int level = ReadInt();
+			int exp = ReadInt();
+			int vit = ReadInt();
+			int str = ReadInt();
+			int _int = ReadInt();
+			int dex = ReadInt();
 			int map = ReadInt();
 			PLAYER_SEXES sex = (PLAYER_SEXES)ReadInt();
 			PLAYER_RACES race = (PLAYER_RACES)ReadInt();
@@ -478,14 +478,14 @@ public class Packet : IDisposable
 			float pAttack = ReadFloat();
 			float mAttack = ReadFloat();
 			PlayerStats stats = new PlayerStats(movSpeed, attSpeed, pAttack, mAttack);
-			bool attacking = ReadBool();
-			float hp = ReadFloat();
-			float mana = ReadFloat();
+			ANIMATION_STATES animation_state = (ANIMATION_STATES)ReadInt();
 			float maxHp = ReadFloat();
 			float maxMana = ReadFloat();
+			float hp = ReadFloat();
+			float mana = ReadFloat();
 			float pDef = ReadFloat();
 			float mDef = ReadFloat();
-			return new PlayerData(pid, aid, sid, name, level, map, sex, race, new System.Numerics.Vector3(x, y, z), heading, stats, attacking, maxHp, maxMana, hp, mana, pDef, mDef);
+			return new PlayerData(pid, name, level, map, sex, race, new System.Numerics.Vector3(x, y, z), heading, stats, animation_state, aid, sid, maxHp, hp, mana, maxMana, exp, vit, str, _int, dex);
 		}
 		catch
 		{

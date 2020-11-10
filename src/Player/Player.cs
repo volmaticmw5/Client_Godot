@@ -22,14 +22,16 @@ public enum ANIMATION_STATES
 {
 	WALK = 0,
 	ATTACK = 1,
+	FALLING = 2
 }
 
 public class ANIMATION_SPEEDS
 {
 	public static float WALK_SPEED_MODIFIER = 3f;
-	public static float WALK_ANIM_SPEED = 1.5f;
-	public static float ATTACK_ANIM_SPEED = 3.7f;
+	public static float WALK_ANIM_SPEED = 0.65f;
+	public static float ATTACK_ANIM_SPEED = .5f;
 	public static float MOB_WALK_SPEED_MODIFIER = 2f;
+	public static float PLAYER_FALLING_ANIM_SPEED = .5f;
 }
 
 public class Player : KinematicBody
@@ -46,9 +48,12 @@ public class Player : KinematicBody
 	[Export] public float CameraRotationSpeed = 0.002f;
 	[Export] public float CameraXmin = -40f;
 	[Export] public float CameraXmax = -30f;
+	[Export] public float JumpSpeedStep = 5f;
+	[Export] public int JumpTime = 10;
+	[Export] public int WaitTimeBeforeJump = 5;
 
 	public static Player instance;
-	public static PlayerData myPlayerData { get; private set; }
+	public static PlayerData data { get; private set; }
 	private bool spawned;
 	public bool attacking;
 	private bool previousAttackCheck;
@@ -65,6 +70,10 @@ public class Player : KinematicBody
 	public Spatial camera;
 	public float camera_x_rot = 0.0f;
 	public float currentCameraRotationSpeed = 0f;
+	private bool falling;
+	private bool wasFalling;
+	private int timeLeftToStopJumpForce = 0;
+	private int timeLeftToStartJump = 0;
 
 	public string name { set; get; }
 
@@ -83,6 +92,24 @@ public class Player : KinematicBody
 			packet.Write(Client.instance.getSessionId());
 			Client.SendTCPData(packet);
 		}
+	}
+
+	public static void Update(Packet packet)
+	{
+		PlayerData newData = packet.ReadPlayerData();
+		if (instance == null)
+			return;
+
+		Player.data.hp = newData.hp;
+		Player.data.mana = newData.mana;
+		Player.data.maxHp = newData.maxHp;
+		Player.data.maxMana = newData.maxMana;
+		Player.data.exp = newData.exp;
+		Player.data.level = newData.level;
+		Player.data.vit = newData.vit;
+		Player.data.str = newData.str;
+		Player.data._int = newData._int;
+		Player.data.dex = newData.dex;
 	}
 
 	private void ApplyRotationBasedOnMovement(Vector3 cam_x, Vector3 cam_z, float delta)
@@ -147,7 +174,7 @@ public class Player : KinematicBody
 	{
 		if(attacking && !previousAttackCheck && spawned)
 		{
-			animTree.Set("parameters/TimeScale/scale", ANIMATION_SPEEDS.ATTACK_ANIM_SPEED * stats.attackSpeed);
+			animTree.Set("parameters/TimeScale/scale", (float)(ANIMATION_SPEEDS.ATTACK_ANIM_SPEED * stats.attackSpeed));
 			animTree.Set("parameters/State/current", ANIMATION_STATES.ATTACK);
 			previousAttackCheck = true;
 		}
@@ -157,6 +184,10 @@ public class Player : KinematicBody
 	{
 		if (!spawned)
 			return;
+
+		falling = !IsOnFloor();
+		if (falling && !wasFalling)
+			wasFalling = true;
 
 		var motion_target = new Vector2(
 			Input.GetActionStrength("move_right") - Input.GetActionStrength("move_left"),
@@ -172,14 +203,22 @@ public class Player : KinematicBody
 		cam_x.y = 0;
 		cam_x = cam_x.Normalized();
 
-		if (!attacking)
+		if(falling)
 		{
-			animTree.Set("parameters/State/current", ANIMATION_STATES.WALK);
+			animTree.Set("parameters/State/current", ANIMATION_STATES.FALLING);
 			ApplyRotationBasedOnMovement(cam_x, cam_z, delta);
 		}
 		else
 		{
-			ApplyRotationBasedOnMovement(cam_x, cam_z, delta);
+			if (!attacking)
+			{
+				animTree.Set("parameters/State/current", ANIMATION_STATES.WALK);
+				ApplyRotationBasedOnMovement(cam_x, cam_z, delta);
+			}
+			else
+			{
+				ApplyRotationBasedOnMovement(cam_x, cam_z, delta);
+			}
 		}
 
 		// Movement
@@ -195,6 +234,35 @@ public class Player : KinematicBody
 			currentBlendPosition -= .1f;
 		}
 
+		if (!falling && !attacking)
+		{
+			if (Input.IsKeyPressed(Keybinds.KEYBIND_JUMP) && timeLeftToStartJump <= 0)
+			{
+				timeLeftToStopJumpForce = JumpTime;
+				timeLeftToStartJump = WaitTimeBeforeJump;
+				animTree.Set("parameters/Jumping/active", true);
+			}
+		}
+
+		if (timeLeftToStopJumpForce > 0)
+		{
+			if(timeLeftToStartJump > 0)
+			{
+				timeLeftToStartJump--;
+			}
+			else
+			{
+				velocity.y += JumpSpeedStep;
+				timeLeftToStopJumpForce--;
+			}
+		}
+
+		if(wasFalling && !falling)
+		{
+			animTree.Set("parameters/HitGround/active", true);
+			wasFalling = false;
+		}
+
 		currentBlendPosition = Mathf.Clamp(currentBlendPosition, -1f, 1f);
 		velocity += Gravity * delta;
 		velocity *= (float)(stats.movementSpeed * ANIMATION_SPEEDS.WALK_SPEED_MODIFIER); // Mov speed
@@ -205,12 +273,20 @@ public class Player : KinematicBody
 		orientation = orientation.Orthonormalized();
 		mesh.GlobalTransform = new Transform(orientation.basis, mesh.GlobalTransform.origin);
 
-		animTree.Set("parameters/Walk/blend_position", currentBlendPosition);
-		animTree.Set("parameters/TimeScale/scale", currentAnimTimeScale);
+		if(falling)
+		{
+			animTree.Set("parameters/TimeScale/scale", ANIMATION_SPEEDS.PLAYER_FALLING_ANIM_SPEED);
+		}
+		else
+		{
+			animTree.Set("parameters/Walk/blend_position", currentBlendPosition);
+			if (!attacking)
+				animTree.Set("parameters/TimeScale/scale", currentAnimTimeScale);
+		}
 
-
-		myPlayerData.heading = Mathf.FloorToInt(this.mesh.RotationDegrees.y);
-		myPlayerData.pos = new System.Numerics.Vector3(
+		data.animation_state = (ANIMATION_STATES)animTree.Get("parameters/State/current");
+		data.heading = Mathf.FloorToInt(this.mesh.RotationDegrees.y);
+		data.pos = new System.Numerics.Vector3(
 			Transform.origin.x.ToString("0.000").ToFloat(), 
 			Transform.origin.y.ToString("0.000").ToFloat(), 
 			Transform.origin.z.ToString("0.000").ToFloat());
@@ -227,11 +303,11 @@ public class Player : KinematicBody
 
 	public void SpawnAt(PlayerData _pData)
 	{
-		myPlayerData = _pData;
-		this.name = myPlayerData.name;
-		this.stats = myPlayerData.stats;
-		string raceName = Enum.GetName(typeof(PLAYER_RACES), myPlayerData.race).ToString().ToLower();
-		string sexName = Enum.GetName(typeof(PLAYER_SEXES), myPlayerData.sex).ToString().ToLower();
+		data = _pData;
+		this.name = data.name;
+		this.stats = data.stats;
+		string raceName = Enum.GetName(typeof(PLAYER_RACES), data.race).ToString().ToLower();
+		string sexName = Enum.GetName(typeof(PLAYER_SEXES), data.sex).ToString().ToLower();
 		PackedScene playerMeshResource = (PackedScene)ResourceLoader.Load($"res://prefabs/3d/characters/player/{raceName}/{sexName}/{sexName}.tscn");
 		mesh = playerMeshResource.Instance() as PlayerMesh;
 		AddChild(mesh);
@@ -239,9 +315,9 @@ public class Player : KinematicBody
 		orientation.origin = new Vector3();
 
 		Transform current = Transform;
-		current.origin.x = myPlayerData.pos.X;
-		current.origin.y = myPlayerData.pos.Y;
-		current.origin.z = myPlayerData.pos.Z;
+		current.origin.x = data.pos.X;
+		current.origin.y = data.pos.Y;
+		current.origin.z = data.pos.Z;
 		Transform = current;
 		//SetRotationDegrees(new Vector3(mesh.RotationDegrees.x, myPlayerData.heading, mesh.RotationDegrees.z)); < - this breaks the camera movement
 
@@ -268,8 +344,7 @@ public class Player : KinematicBody
 		{
 			packet.Write(Client.instance.getCID());
 			packet.Write(Client.instance.getSessionId());
-			packet.Write(myPlayerData);
-			packet.Write(Player.instance.attacking);
+			packet.Write(data);
 
 			Client.SendTCPData(packet);
 		}

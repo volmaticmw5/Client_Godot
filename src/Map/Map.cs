@@ -157,7 +157,7 @@ class Map : Spatial
 
 	private static void createMob(Mob mob)
 	{
-		PackedScene nOtherScene = (PackedScene)ResourceLoader.Load($"res://prefabs/3D/mobs/{mob.data.id}.tscn");
+		PackedScene nOtherScene = (PackedScene)ResourceLoader.Load($"res://prefabs/3d/mobs/{mob.data.id}.tscn");
 		Mob nMob = nOtherScene.Instance() as Mob;
 		SceneManager.GetInstance().GetTree().Root.GetNodeOrNull(SceneManager.CurrentMapScenePath).CallDeferred("add_child", nMob);
 		nMob.Init(mob.data, mob.mid, mob.hp, mob.maxHp, mob.position, mob.focus, mob.gid);

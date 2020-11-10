@@ -3,11 +3,15 @@
 [ext_resource path="res://src/Player/Player.cs" type="Script" id=1]
 
 [sub_resource type="CapsuleShape" id=1]
+height = 1.05428
 
 [node name="Player" type="KinematicBody"]
 script = ExtResource( 1 )
 CameraBasePath = NodePath("CameraBase")
+Gravity = Vector3( 0, -50, 0 )
 CameraXmax = 60.0
+JumpSpeedStep = 2.0
+JumpTime = 20
 
 [node name="FloorRaycast" type="RayCast" parent="."]
 
